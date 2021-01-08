@@ -11,8 +11,8 @@ jobs:
       - name: Deploy
         uses: shalzz/zola-deploy-action@v0.12.2
         env:
+          REPOSITORY: "varlociraptor/varlociraptor.github.io"
           # Target branch
           PAGES_BRANCH: master
           # Provide personal access token
           TOKEN: ${{ secrets.TOKEN }}
-          REPOSITORY: "varlociraptor/varlociraptor.github.io"

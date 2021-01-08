@@ -9,10 +9,10 @@ jobs:
       - uses: actions/checkout@master
       # Build & deploy
       - name: Deploy
-        uses: shalzz/zola-deploy-action@v0.12.0
+        uses: shalzz/zola-deploy-action@v0.12.2
         env:
           # Target branch
           PAGES_BRANCH: master
           # Provide personal access token
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPOSITORY: https://github.com/varlociraptor/varlociraptor.github.io.git
+          TOKEN: ${{ secrets.TOKEN }}
+          REPOSITORY: "https://github.com/varlociraptor/varlociraptor.github.io.git"

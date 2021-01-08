@@ -15,4 +15,4 @@ jobs:
           PAGES_BRANCH: master
           # Provide personal access token
           TOKEN: ${{ secrets.TOKEN }}
-          REPOSITORY: "https://github.com/varlociraptor/varlociraptor.github.io.git"
+          REPOSITORY: "varlociraptor/varlociraptor.github.io"

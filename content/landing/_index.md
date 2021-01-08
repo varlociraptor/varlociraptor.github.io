@@ -34,4 +34,14 @@ h1 {
 * Tumor-normal-calling, classifying variants as somatic in tumor, somatic in normal, germline, or absent.
 * Generic, grammar based configuration of the statistical model, allowing to call variants for arbitrary scenarios (including germline, tumor/normal/relapse, pedigrees, FFPE data, and anything else).
 
+---
+
+[![Bioconda](https://img.shields.io/conda/dn/bioconda/varlociraptor?label=bioconda%20downloads)](https://bioconda.github.io/recipes/varlociraptor/README.html)
+[![Repo](https://img.shields.io/badge/code%20on-github-blue)](https://github.com/varlociraptor/varlociraptor)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/varlociraptor/varlociraptor/CI/master?label=tests)](https://github.com/varlociraptor/varlociraptor/commits/master)
+[![License](https://img.shields.io/github/license/varlociraptor/varlociraptor)](https://github.com/varlociraptor/varlociraptor/blob/master/LICENSE)
+[![Codecov](https://img.shields.io/codecov/c/github/varlociraptor/varlociraptor/master.svg?label=test%20coverage)](https://codecov.io/gh/varlociraptor/varlociraptor)
+[![API docs](https://img.shields.io/badge/API-documentation-blue.svg)](https://docs.rs/varlociraptor)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+
 </div>

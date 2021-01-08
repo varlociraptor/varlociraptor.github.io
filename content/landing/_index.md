@@ -6,7 +6,7 @@ weight = 0
 <div style="text-align: center;">
 <img src="varlociraptor-logo.svg" style="width: 25%">
 
-Flexible, uncertainty-aware variant calling <br/> with parameter free filtration via FDR control.
+Flexible, arbitrary-scenario, uncertainty-aware variant calling <br/> with parameter free filtration via FDR control.
 </div>
 
 <style>

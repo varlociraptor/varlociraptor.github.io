@@ -1,3 +1,6 @@
+title = "Varlociraptor Homepage"
+description = "Flexible, arbitrary-scenario, uncertainty-aware variant calling with parameter free filtration via FDR control."
+
 # The URL the site will be built for
 base_url = "https://varlociraptor.github.io"
 

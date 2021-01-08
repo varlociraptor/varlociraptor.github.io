@@ -65,6 +65,17 @@ The dots (`...`) refer to the selected calling mode, which can be one of the fol
 1. **Tumor-normal variant calling:** this assumes that a tumor and a corresponding healthy sample is given.
 2. **Generic variant calling:** via a *variant calling grammar*, arbitrary calling scenarios can be defined.
 
+### Note on amplicon sequencing data
+
+With amplicon sequencing data, variants are usually covered only by a few (down to a single) amplicon, from which many duplicates are sequenced.
+It important to deactivate read position bias handling via
+
+```bash
+varlociraptor call variants --omit-read-position-bias ...
+```
+
+in the Varlociraptor model in such cases, because it will otherwise detect a read position bias for those variants covered only by a single amplicon. Even for few amplicons the model would otherwise overestimate the degrees of freedom, thereby leading to artificially weak probabilities.
+
 ## Tumor-normal variant calling
 
 Let `tumor.bcf` and `normal.bcf` be the preprocessed observations (see above) of the tumor and healthy/normal sample, respectively.

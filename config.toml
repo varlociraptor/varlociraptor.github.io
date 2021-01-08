@@ -2,7 +2,7 @@
 base_url = "https://varlociraptor.github.io"
 
 # Whether to automatically compile all Sass files in the sass directory
-compile_sass = false
+compile_sass = true
 
 # Whether to do syntax highlighting
 # Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
@@ -12,7 +12,7 @@ highlight_code = true
 build_search_index = true
 
 # Theme config
-theme = "book"
+theme = "book-custom"
 book_numbered_chapters = false
 
 [extra]

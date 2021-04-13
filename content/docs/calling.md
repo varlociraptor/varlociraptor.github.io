@@ -93,7 +93,7 @@ Instead, it should be followed by controlling the false discovery rate over the 
 
 The generic mode allows to define a calling scenario via a variant calling grammar.
 The grammar allows to define the desired scenario in a [YAML](https://yaml.org) file.
-For example, the following defines a normal/tumor/relapse model (i.e., joint calling of tumor and relapse after therapy against normal):
+For example, the following defines a normal/tumor/relapse model with a uniform prior (i.e., joint calling of tumor and relapse after therapy against normal):
 
 ```yaml
 samples:
@@ -124,7 +124,7 @@ In the following, we briefly describe each element for the grammar.
 
 * `samples`: this section contains the definition of the involved samples. Each sample is listed by its name (e.g. `normal`) which is referred to later in the `events` section.
 * `resolution`: the number of points in allele frequency space to evaluate when integrating over continuous allele frequency intervals (e.g. `]0.0,0.5[`). A resolution of 100 in an allele frequency interval of `]0.0,1.0[` means that allele frequency is evaluated in steps of size `0.01`.
-* `universe`: valid allele frequencies in the given sample. The operator `|` denotes a logical "or". For example `0.0 | 0.5 | 1.0 | ]0.0,0.5[` means that an allele frequency of `0.0`, `0.5`, `1.0` or any frequency in the interval `]0.0,0.5[` (with exlcusive bounds) is possible for the particular sample.
+* `universe`: valid allele frequencies in the given sample. The operator `|` denotes a logical "or". For example `0.0 | 0.5 | 1.0 | ]0.0,0.5[` means that an allele frequency of `0.0`, `0.5`, `1.0` or any frequency in the interval `]0.0,0.5[` (with exlcusive bounds) is possible for the particular sample. Defining a `universe` means that a uniform prior is used. Alternatively, when the mutation rates are known, it is possible to configure Varlociraptors joint prior distribution that allows to model population genetics, mendelian inheritance and tumor evolution. See the next section for details.
 * `contamination`: denotes the contamination of the sample with another sample, given by its name after the `by` key, and the fraction of contamination after the `fraction` key.
 * `events`: this section contains the definition of events that shall be evaluated. Each event is a boolean logic formula over operands that define allele frequencies or allele frequency intervals in particular samples. These operands have the form `samplename:spec`, where spec is the specification of an allele frequency (e.g. `0.5`) or an allele frequency interval (inclusive: `[a,b]`, left-exclusive: `]a,b]`, right-exclusive: `[a,b[`, exclusive: `]a,b[`).
 * `expressions`: analogous to `events`, expressions allow to define formulas, each with a given name. However, expressions are by default ignored, and have to be explicitly used from within `events` formulae. For example, let `myexpr` be the name of an expression, then it can be used in any formula by specifying `$myexpr`.
@@ -146,125 +146,72 @@ Note that now, observation files are given with a leading name, which has to cor
 The result is a proper stastistical assessment of the desired scenario, without the need to apply any ad-hoc filtering.
 Instead, it should be followed by controlling the false discovery rate over the desired events, see [Filtering]({{< ref "filtering.md" >}}).
 
-### Grammar applications
+### Configuring the joint prior distribution
 
-#### Single sample germline calling
-
-The probably most simple case is the calling of germline variants in a single sample (let us say the sample is called `hamlet`):
-
-```yaml
-samples:
-  hamlet:
-    resolution: 5
-    universe: "0.0 | 0.5 | 1.0"
-
-events:
-  het: "0.5"
-  hom: "1.0"
-```
-
-The resolution key (see above) is actually superfluous in this case, as there is no continous allele frequency interval involved.
-Future releases of Varlociraptor will allow to omit it.
-In order to make this model more exact, please refer to "Chromosome specific allele frequency universes" below.
-
-#### Single sample tumor-only calling
-
-When having only a single tumor sample with known contamination by normal cells but without a separately sequenced normal sample, it is possible to make use of Varlociraptor's ability to nevertheless properly model the contamination:
+When mutation rates for the species you investigate (or the tumor) are known, it is possible to inform Varlociraptor about such prior knowledge, including inheritance relations. 
+Which sufficient evidence, such prior knowledge is less important, however, it can play a role in corner cases (in particular at low coverage), and it can help the system to make the correct decision in case of ambiguity.
+In the following example, instead of defining uniform allele frequency universes as above, we define the inheritance relationship between samples and the properties of the underlying species.
 
 ```yaml
+species:
+  genome-size: 3.5e9
+  heterozygosity: 0.001
+  germline-mutation-rate: 1e-3
+  ploidy:
+    male:
+      all: 2
+      X: 1
+      Y: 1
+    female:
+      all: 2
+      X: 2
+      Y: 0
+
 samples:
-  normal:
-    resolution: 5
-    universe: "0.0 | 0.5 | 1.0"
+  mother:
+    sex: female
+  father:
+    sex: male
+  daughter:
+    sex: female
+    somatic-effective-mutation-rate: 1e-10
+    inheritance:
+      mendelian:
+        from:
+          - mother
+          - father
   tumor:
-    resolution: 100
-    universe: "[0.0,1.0]"
+    sex: female
+    somatic-effective-mutation-rate: 1e-6
+    inheritance:
+      clonal:
+        from: daughter
+        somatic: false
     contamination:
       by: normal
-      fraction: 0.25
+      fraction: 0.1
 
 events:
-  somatic:  "normal:0.0 & tumor:]0.0,1.0]"
-  germline: "normal:0.5 | normal:1.0"
+  germline_denovo:    "(daughter:0.5 | daughter:1.0) & father:0.0 & mother:0.0"
+  somatic_normal:     "daughter:]0.0,0.5["
+  somatic_tumor:      "daughter:0.0 & tumor:]0.0,1.0]"
+  germline_inherited: "!daugher:0.0 & (!father:0.0 | !mother:0.0)"
+  germline_lost:      "daughter:0.0 & (!father:0.0 | !mother:0.0)
 ```
 
-With such a scenario, even when no aligned reads from a separate normal sample are provided, Varlociraptor can still calculate the probabilities for the defined events.
-Naturally, whenever the observed reads do not allow to decide, both probabilities will become accordingly weak.
-This is e.g. the case for an observed allele frequency of 0.5, which in this scenario can be either a somatic variant with allele frequency 1/3, or a heterozygous germline variant.
-If the observed allele frequency is 1.0 though, it is clear that the variant has to be germline, since a somatic variant could occur at a frequency of 0.75 at most (because of the contamination).
-Similarly, an observed allele frequency far away from 0.5 and 1.0 indicates a tendency towards a somatic variant, which will again be properly reflected in the event probabilities.
+Compared to the initial normal/tumor/relapse with a uniform prior example shown above, some new elements appear:
 
-#### Chromosome specific allele frequency universes
+* `species`: here, properties of the underlying species are defined, that is, the genome size (needed for the somatic prior), the heterozygosity (fraction of expected heterozygous sites), the germline mutation rate (for de novo mutations during the mendelian inheritance process), the ploidy for each sex. For the latter, `all` denotes the ploidy of all chromosomes, while below special cases are listed, e.g., for `X` and `Y` chromosomes.
+* `sex`: denotes the sex of each sample, thereby defining the ploidy, which is taken from the species definition.
+* `somatic-effective-mutation-rate`: denotes the expected rate of de novo somatic mutations that survive (i.e. aren't lethal) to formulate a prior assumption about the expected somatic allele frequency distribution (as presented by [Williams et al. Nature Genetics 2016](https://doi.org/10.1038/ng.3489)). Such rates will usually differ between normal (can be found in literature) and tumor samples, and should be estimated or looked up for a given tumor instance. Note that it is also possible to simply define an allele frequency `universe` for a tumor sample, thereby avoiding to specify a somatic effective mutation rate, in case it is still unknown. In that case, a uniform prior would be used for the tumor, while the rest of the sample would be treated according to the defined population genetic and mendelian priors.
+* `inheritance`: Relationship to other samples. Inheritance can be either `mendelian` (here, the `daughter` inherits from `father` and `mother`), or `clonal` (here, the `tumor` inherits from the normal tissue of the `daughter`). In case of the latter, it has to be specified additionally whether somatic mutations from the parental clone are inherited or not.
 
-Certain chromosomes differ from the overall ploidy of an organism (e.g. sex chromosomes).
-Hence, variants occuring at such chromosomes exhibit different allele frequencies.
-Varlociraptor allows to define this expectation in the calling grammar.
-The following example defines the calling for two human samples:
+All other keywords can be looked up in the section above.
 
-```yaml
-samples:
-  romeo:
-    resolution: 5
-    universe:
-      all: "0.0 | 0.5 | 1.0"
-      X: "0.0 | 1.0"
-      Y: "0.0 | 1.0"
-  juliet:
-    resolution: 5
-    universe:
-      all: "0.0 | 0.5 | 1.0"
-      Y: "0.0"
+### Grammar applications
 
-events:
-  both_het: "juliet:0.5 & romeo:0.5"
-  both_hom: "juliet:1.0 & romeo:1.0"
-  juliet_only: "(juliet:0.5 | juliet:1.0) & romeo:0.0"
-  romeo_only: "(romeo:0.5 | romeo:1.0) & juliet:0.0"
-```
-
-As can be seen, we define a universe for all chromosomes (`all`), and add exceptions for Romeo (the male) being haploid in the sex chromosomes.
-For Juliet (female), the X chromosome is diploid like all other chromosomes, while there is no Y chromosome at all.
-Hence, the universe for the Y chromosome becomes `0.0` only.
-Currently, Varlociraptor assumes a uniform prior over the defined universes (the grammar will be soon extended to allow other priors as well).
-This means that restricting the universe as above also impacts the calculated probabilities for the defined events.
-For example, on chromosome Y, there will be no calls for Juliet, because all allele frequencies other than 0.0 will get a probability of zero.
-Therefore, all chromosome Y variants will be classified as `romeo_only` or `absent` (the implicit event that none of the samples hosts the variant).
-
-#### FFPE artifact detection
-
-When analyzing formalin-fixed paraffin embedded tissues, one can expect considerable rates of low-frequency C>T and G>A artifacts (see [Do and Dobrovic, Clinical Chemistry 2014](https://doi.org/10.1373/clinchem.2014.223040)).
-The variant calling grammar allows to model them as a separate event, allowing to filter them away while considering the involved uncertainty:
-
-```yaml
-samples:
-  ffpetumor:
-    universe: "[0.0,1.0]"
-    resolution: 100
-
-events:
-  ffpe_artifact: "(C>T | G>A) & ffpetumor:]0.0,0.05["
-  present: "((C>T | G>A) & ffpetumor:]0.05,1.0]) | (!(C>T | G>A) & ffpetumor:]0.0,1.0[)"
-```
-
-As can be seen, here we introduce an additional type of atomic expression, selecting particular substitutions (e.g. `C>T`, allowed is the [IUPAC DNA alphabet](https://www.bioinformatics.org/sms/iupac.html)).
-
-#### RNA-seq variant calling
-
-When calling variants on RNA-seq, allele frequencies can, although e.g. investigating a diploid sample, take any value from `0.0` to `1.0` again, because we don't know which allele is expressed in what amount.
-Of course, this situation can be easily modeled, similar to tumor calling:
-
-```yaml
-sample:
-  hamletsrna:
-    universte: "[0.0,1.0]"
-    resolution: 10
-
-events:
-  present: "hamletsrna:]0.0,1.0]"
-```
-
-RNA-seq variant calling can however suffer from other issues like splicing induced artifacts.
-The right way of mapping and processing reads for RNA-seq variant calling is still an area of active research, and we suggest to carefully investigate the current state of the art preprocessing steps, and possible solutions to avoid such artifacts (post-mapping cleanup, mapping against transcriptome, assembly-first, ...).
+Various concrete applications of the grammar can be found in the [Varlociraptor Scenario Catalog](https://varlociraptor.github.io/varlociraptor-scenarios).
+You are welcome to submit further applications there.
 
 ## Supported variant types
 

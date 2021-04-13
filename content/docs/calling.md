@@ -31,7 +31,7 @@ Variant types that are not (yet) supported by Varlociraptor will be dropped (wit
 
 Instead of offering internal parallelization, ``varlociraptor preprocess variants`` should be parallelized via a scatter-gather.
 That means that you first split the ``candidates.bcf`` into chunks of equal size.
-This can best be done via Rust-Bio-Tools (``rbt``), which offers a subcommand for splitting VCF/BCF files while properly handling events that span multiple records (breakend events with ``SVTYPE=BND``).
+This can best be done via [Rust-Bio-Tools](https://github.com/rust-bio/rust-bio-tools) (``rbt``), which offers a subcommand for splitting VCF/BCF files while properly handling events that span multiple records (breakend events with ``SVTYPE=BND``).
 For example, with
 
 ```bash

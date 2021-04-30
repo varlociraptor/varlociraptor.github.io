@@ -139,7 +139,7 @@ Let `relapse.bcf`, `tumor.bcf`, and `normal.bcf` be the preprocessed observation
 Then, the calling command would be
 
 ```bash
-varlociraptor call variants generic --scenario scenario.yaml --obs relapse=relapse.sorted.bcf tumor=tumor.bcf normal=normal.bam > calls.bcf
+varlociraptor call variants generic --scenario scenario.yaml --obs relapse=relapse.sorted.bcf tumor=tumor.bcf normal=normal.bcf > calls.bcf
 ```
 
 Note that now, observation files are given with a leading name, which has to correspond to the name defined in the scenario YAML.

@@ -14,10 +14,11 @@ jobs:
       # Checkout
       - uses: actions/checkout@master
       # Build & deploy
-      - name: Deploy
+      - name: Build/Deploy
         uses: shalzz/zola-deploy-action@v0.12.2
         env:
           # Target branch
           PAGES_BRANCH: master
           # Provide personal access token
           TOKEN: ${{ secrets.TOKEN }}
+          BUILD_ONLY: ${{ github.event_name == 'pull_request' }}

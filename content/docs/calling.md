@@ -125,7 +125,7 @@ In the following, we briefly describe each element for the grammar.
 * `samples`: this section contains the definition of the involved samples. Each sample is listed by its name (e.g. `normal`) which is referred to later in the `events` section.
 * `resolution`: the number of points in allele frequency space to evaluate when integrating over continuous allele frequency intervals (e.g. `]0.0,0.5[`). A resolution of 100 in an allele frequency interval of `]0.0,1.0[` means that allele frequency is evaluated in steps of size `0.01`.
 * `universe`: valid allele frequencies in the given sample. The operator `|` denotes a logical "or". For example `0.0 | 0.5 | 1.0 | ]0.0,0.5[` means that an allele frequency of `0.0`, `0.5`, `1.0` or any frequency in the interval `]0.0,0.5[` (with exlcusive bounds) is possible for the particular sample. Defining a `universe` means that a uniform prior is used. Alternatively, when the mutation rates are known, it is possible to configure Varlociraptors joint prior distribution that allows to model population genetics, mendelian inheritance and tumor evolution. See the next section for details.
-* `contamination`: denotes the contamination of the sample with another sample, given by its name after the `by` key, and the fraction of contamination after the `fraction` key.
+* `contamination`: denotes the contamination of the sample with another sample (for example `1 - purity` in a tumor sample that is "contaminated" with normal cells), given by its name after the `by` key, and the fraction of contamination after the `fraction` key.
 * `events`: this section contains the definition of events that shall be evaluated. Each event is a boolean logic formula over operands that define allele frequencies or allele frequency intervals in particular samples. These operands have the form `samplename:spec`, where spec is the specification of an allele frequency (e.g. `0.5`) or an allele frequency interval (inclusive: `[a,b]`, left-exclusive: `]a,b]`, right-exclusive: `[a,b[`, exclusive: `]a,b[`). An event formula may refer to another event by specifying it by its name preceded with a `$` character, e.g., `$myevent` refers to the event `myevent`. See [here](https://varlociraptor.github.io/varlociraptor-scenarios/scenarios/pedigree-prior/) for an example application of the latter.
 * `expressions`: analogous to `events`, expressions allow to define formulas, each with a given name. However, expressions are by default ignored, and have to be explicitly used from within `events` formulae. For example, let `myexpr` be the name of an expression, then it can be used in any formula by specifying `$myexpr`.
 
@@ -139,7 +139,7 @@ Let `relapse.bcf`, `tumor.bcf`, and `normal.bcf` be the preprocessed observation
 Then, the calling command would be
 
 ```bash
-varlociraptor call variants generic --scenario scenario.yaml --obs relapse=relapse.sorted.bcf tumor=tumor.bcf normal=normal.bam > calls.bcf
+varlociraptor call variants generic --scenario scenario.yaml --obs relapse=relapse.sorted.bcf tumor=tumor.bcf normal=normal.bcf > calls.bcf
 ```
 
 Note that now, observation files are given with a leading name, which has to correspond to the name defined in the scenario YAML.

@@ -114,11 +114,16 @@ samples:
       fraction: 0.53
 
 events:
-  germline:        "normal:0.5 | normal:1.0"
-  somatic_normal:  "normal:]0.0,0.5["
-  somatic_relapse: "normal:0.0 & tumor:0.0 & relapse:]0.0,1.0]"
-  somatic_tumor_relapse_double:   "normal:0.0 & tumor:]0.0,1.0] & l2fc(relapse, tumor) >= 1.0"
-  somatic_tumor:   "normal:0.0 & tumor:]0.0,1.0] & l2fc(relapse, tumor) < 1.0"
+  germline:
+    "normal:0.5 | normal:1.0"
+  somatic_normal:
+    "normal:]0.0,0.5["
+  somatic_relapse:
+    "normal:0.0 & tumor:0.0 & relapse:]0.0,1.0]"
+  somatic_tumor:
+    "normal:0.0 & tumor:]0.0,1.0] & l2fc(relapse, tumor) < 1.0"
+  somatic_tumor_relapse_double:
+    "normal:0.0 & tumor:]0.0,1.0] & l2fc(relapse, tumor) >= 1.0"
 ```
 
 In the following, we briefly describe each element for the grammar.
@@ -128,10 +133,10 @@ In the following, we briefly describe each element for the grammar.
 * `universe`: valid allele frequencies in the given sample. The operator `|` denotes a logical "or". For example `0.0 | 0.5 | 1.0 | ]0.0,0.5[` means that an allele frequency of `0.0`, `0.5`, `1.0` or any frequency in the interval `]0.0,0.5[` (with exlcusive bounds) is possible for the particular sample. Defining a `universe` means that a uniform prior is used. Alternatively, when the mutation rates are known, it is possible to configure Varlociraptors joint prior distribution that allows to model population genetics, mendelian inheritance and tumor evolution. See the next section for details.
 * `contamination`: denotes the contamination of the sample with another sample (for example `1 - purity` in a tumor sample that is "contaminated" with normal cells), given by its name after the `by` key, and the fraction of contamination after the `fraction` key.
 * `events`: this section contains the definition of events that shall be evaluated. Each event is a boolean logic formula over operands that define allele frequencies or allele frequency intervals in particular samples. These operands have the form `samplename:spec`, where spec is the specification of an allele frequency (e.g. `0.5`) or an allele frequency interval (inclusive: `[a,b]`, left-exclusive: `]a,b]`, right-exclusive: `[a,b[`, exclusive: `]a,b[`). An event formula may refer to another event by specifying it by its name preceded with a `$` character, e.g., `$myevent` refers to the event `myevent`. See [here](https://varlociraptor.github.io/varlociraptor-scenarios/scenarios/pedigree-prior/) for an example application of the latter.
-* In addition to using allele frequencies it is possible to define constraints over allele frequency log2 fold changes (see event `somatic_tumor_relapse_double`). Further, simple comparisons of allele frequencies like `relapse > tumor` are allowed.
+* In addition to using allele frequencies it is possible to define constraints over allele frequency log2 fold changes (see event `somatic_tumor`). Further, simple comparisons of allele frequencies like `relapse > tumor` are allowed.
 * `expressions`: analogous to `events`, expressions allow to define formulas, each with a given name. However, expressions are by default ignored, and have to be explicitly used from within `events` formulae. For example, let `myexpr` be the name of an expression, then it can be used in any formula by specifying `$myexpr`.
 
-For each variant, Valrociraptor will calculate the probability of each defined event to be true.
+For each variant, Varlociraptor will calculate the probability of each defined event to be true.
 Importantly, for proper results, the given events have to **cover the entire range of possibilities**. 
 Otherwise, the calculated posterior probabilities would be biased.
 The absent event (i.e. here `tumor:0.0 & normal:0.0 & relapse:0.0`) is added implicitly though.

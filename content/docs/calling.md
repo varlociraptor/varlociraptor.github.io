@@ -12,12 +12,12 @@ Let `reference.fa` be the reference genome FASTA file (indexed with [samtools](h
 ## Preprocessing per-sample observations
 
 First, varlociraptor requires to preprocess the candidate variants in order to obtain per-sample observations for the actual calling process.
-Let `sample.bam` be the aligned reads of the sample to preprocess.
+Let `sample.bam` be the aligned reads of the sample to preprocess, and let `sample.alignment-properties.json` be the corresponding alignment property file obtained by running `varlociraptor estimate alignment-properties`, see [Estimating properties]({{< ref "estimating.md" >}}).
 While varlociraptor does not require a particular read aligner, it assumes that provided mapping qualities (MAPQ) are as accurate as possible, and that too large indels are encoded as softclips (i.e. it expects BAMs in [bwa mem](https://bio-bwa.sourceforge.net/) style).
 Preprocessing can be started with
 
 ```bash
-varlociraptor preprocess variants reference.fa --bam sample.bam < candidates.bcf > sample.observations.bcf
+varlociraptor preprocess variants reference.fa --alignment-properties sample.alignment-properties.json --bam sample.bam < candidates.bcf > sample.observations.bcf
 ```
 
 In other words, the candidate variants are piped into varlociraptor (with the `<` shell operator) and observations are piped into `sample.observations.bcf` (with the `>` shell operator).

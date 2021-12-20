@@ -197,11 +197,22 @@ samples:
     contamination:
       by: normal
       fraction: 0.1
+  
+  relapse:
+    sex: female
+    somatic-effective-mutation-rate: 1e-6
+    inheritance:
+      subclonal:
+        from: tumor
+    contamination:
+      by: normal
+      fraction: 0.2
 
 events:
   germline_denovo:    "(daughter:0.5 | daughter:1.0) & father:0.0 & mother:0.0"
   somatic_normal:     "daughter:]0.0,0.5["
   somatic_tumor:      "daughter:0.0 & tumor:]0.0,1.0]"
+  somatic_relapse:    "daughter:0.0 & tumor:0.0 & relapse:]0.0,1.0]"
   germline_inherited: "!daugher:0.0 & (!father:0.0 | !mother:0.0)"
   germline_lost:      "daughter:0.0 & (!father:0.0 | !mother:0.0)
 ```
@@ -211,7 +222,7 @@ Compared to the initial normal/tumor/relapse with a uniform prior example shown 
 * `species`: here, properties of the underlying species are defined, that is, the genome size (needed for the somatic prior), the heterozygosity (fraction of expected heterozygous sites), the germline mutation rate (for de novo mutations during the mendelian inheritance process), the ploidy for each sex. For the latter, `all` denotes the ploidy of all chromosomes, while below special cases are listed, e.g., for `X` and `Y` chromosomes.
 * `sex`: denotes the sex of each sample, thereby defining the ploidy, which is taken from the species definition.
 * `somatic-effective-mutation-rate`: denotes the expected fraction of non-lethal de novo somatic mutations, independent of their frequency, in the genome. In other words, the given rate denotes the probability to encounter a somatic mutation at any random site in the genome, and all possible VAFs > 0.0 are thereby equally likely. The latter is an important simplification as usually the effects affecting the VAF (the point in time of the mutation, overlapping CNVs) are unknown a priori and would unnecessarily constrain the variant call. Instead, once the model decides for the existence of a somatic mutation, the VAF is driven purely by the data. Somatic mutation rates will usually differ between normal (can be found in literature) and tumor samples, and should be estimated or looked up for a given tumor instance. Note that it is also possible to simply define an allele frequency `universe` for a tumor sample, thereby avoiding to specify a somatic effective mutation rate, in case it is still unknown. In that case, a uniform prior would be used for the tumor, while the rest of the sample would be treated according to the defined population genetic and mendelian priors.
-* `inheritance`: Relationship to other samples. Inheritance can be either `mendelian` (here, the `daughter` inherits from `father` and `mother`), or `clonal` (here, the `tumor` inherits from the normal tissue of the `daughter`). In case of the latter, it has to be specified additionally whether somatic mutations from the parental clone are inherited or not.
+* `inheritance`: Relationship to other samples. Inheritance can be `mendelian` (here, the `daughter` inherits from `father` and `mother`), or `clonal` (here, the `tumor` inherits from the normal tissue of the `daughter`). In case of the latter, it has to be specified additionally whether somatic mutations from the parental clone are inherited or not. Further, `subclonal` inheritance can be specified, which describes the case where e.g. one tumor sample inherits from another tumor sample (e.g. modeling a relapse or metastasis situation).
 
 All other keywords can be looked up in the section above.
 

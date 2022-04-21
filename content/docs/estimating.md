@@ -6,13 +6,15 @@ weight = 4
 ## Estimating alignment properties
 
 In order to judge about candidate indel and structural variants, Varlociraptor needs to know about certain properties of the underlying sequencing experiment in combination with the used read aligner.
-This includes the maximum feasible softclip size of the aligner, the insert size of the sequencing library, and the expected amounts of homopolymer errors.
-While Varlociraptor is able to estimate these on the fly, it is recommended to perform this estimation per sample before processing variant calls, in order to safe time upon repeated runs or during parallelization.
-Given that the sample is given as BAM file `sample.bam`, estimation can be performed as
+This includes the maximum feasible softclip size of the aligner, the insert size of the sequencing library, the expected amounts of homopolymer errors and the probabilities of opening and extending gaps.
+While Varlociraptor is able to estimate these on the fly, it is recommended to perform this estimation per sample before processing variant calls, in order to save time upon repeated runs or during parallelization.
+Given that the sample is given as a sorted (by position) BAM file `sample.bam`, estimation can be performed as
 
 ```bash
 varlociraptor estimate alignment-properties reference.fa --bam sample.bam > sample.alignment-properties.json
 ```
+
+By default, varlociraptor uses all suitable alignments in the provided file, use `--num-records NUM` to restrict the number of alignments used.
 
 The alignment properties can then be passed on to `varlociraptor preprocess variants`, see [Calling variants]({{< ref "calling.md" >}}).
 

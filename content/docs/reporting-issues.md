@@ -20,10 +20,11 @@ be the original command you ran which yielded a variant call you believe to be w
 Then, you can issue
 
 ```bash
-varlociraptor call variants --testcase-prefix testcase --testcase-locus CHROM:POS tumor-normal --purity 0.75 --tumor tumor.bcf --normal normal.bcf
+varlociraptor call variants --testcase-prefix testcase --testcase-locus CHROM:POS --testcase-anonymous tumor-normal --purity 0.75 --tumor tumor.bcf --normal normal.bcf
 ```
 
 with `CHROM:POS` being the locus of the variant as it is defined in the vcf file (1-based position).
+`--testcase-anonymous` will try to anonymize as much information in the test case as possible, anonymizing identifiers (via uuid4) and sequences (by randomly permuting the alphabet).
 Varlociraptor will then create a folder under the given prefix (here `testcase`), containing
 
 * relevant subsets of the given BAM files (the reads around the locus),

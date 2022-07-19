@@ -77,13 +77,25 @@ The dots (`...`) refer to the selected calling mode, which can be one of the fol
 ### Note on amplicon sequencing data
 
 With amplicon sequencing data, variants are usually covered only by a few (down to a single) amplicon, from which many duplicates are sequenced.
-It important to deactivate read position bias handling via
+It is important to deactivate read position bias handling via
 
 ```bash
 varlociraptor call variants --omit-read-position-bias ...
 ```
 
 in the Varlociraptor model in such cases, because it will otherwise detect a read position bias for those variants covered only by a single amplicon. Even for few amplicons the model would otherwise overestimate the degrees of freedom, thereby leading to artificially weak probabilities.
+
+### Note on calling known variants
+
+With known variants as input, it is advisable to disable the alternative locus bias detection of Varlociraptor.
+This bias detection tries to find systematic association of alt alleles with alternative loci reported by the mapper or low MAPQs.
+While this is usually a good idea to avoid artifacts in de-novo calling, it is overly conservative when there is some prior orthogonal knowledge
+that given variants are true.
+Alternative locus bias detection can be deactivated with
+
+```bash
+varlociraptor call variants --omit-alt-locus-bias ...
+```
 
 ## Tumor-normal variant calling
 

@@ -41,6 +41,7 @@ For building, it needs the following dependencies (including headers):
 * bzip2
 * xz
 * GSL (if you have GSLv2, you need to specify `--features gslv2` in the command below)
+* cmake
 
 Given that Cargo is installed in your system, run
 

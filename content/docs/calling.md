@@ -25,10 +25,11 @@ In other words, the candidate variants are piped into varlociraptor (with the `<
 Note that the candidate variants (here ``candidates.bcf``) have to be **the same for each sample**.
 This can be achieved by either jointly calling across all samples (as possible with most variant callers), or by merging candidates from all involved samples into a single VCF/BCF file.
 
-From the candidate variant file, only `CHROM`, `POS`, `REF`, `ALT`, `EVENT`, `END`, and `SVLEN` (if present) are used. Other fields are ignored.
-The `EVENT` field thereby groups variants into a common haplotype.
+From the candidate variant file, only `CHROM`, `POS`, `REF`, `ALT`, `EVENT`, `MATEID`, `END`, and `SVLEN` (if present) are used. Other fields are ignored.
+The `EVENT` and `MATEID` fields thereby groups variants into a common haplotype.
 For breakends this happens as defined in the [VCF specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf).
 For other types of variants the same semantic is used: all variants that have the same value in their `EVENT` tag are considered to be in the same haplotype and the model will calculate the read support for the entire haplotype.
+In case of `MATEID`, variants are considered to be of the same haplotype if the set of `ID` and `MATEID` is the same. This is usually true for a pair of records, which reciprocally refer to each others IDs via the `MATEID` field.
 
 Variant types that are not (yet) supported by Varlociraptor will be dropped (with notification on STDERR).
 

@@ -39,7 +39,7 @@ h1 {
 
 [![Bioconda](https://img.shields.io/conda/dn/bioconda/varlociraptor?label=bioconda%20downloads)](https://bioconda.github.io/recipes/varlociraptor/README.html)
 [![Repo](https://img.shields.io/badge/code%20on-github-blue)](https://github.com/varlociraptor/varlociraptor)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/varlociraptor/varlociraptor/CI/master?label=tests)](https://github.com/varlociraptor/varlociraptor/commits/master)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/varlociraptor/varlociraptor/rust.yml?branch=master&label=tests)](https://github.com/varlociraptor/varlociraptor/commits/master)
 [![License](https://img.shields.io/github/license/varlociraptor/varlociraptor)](https://github.com/varlociraptor/varlociraptor/blob/master/LICENSE)
 [![Codecov](https://img.shields.io/codecov/c/github/varlociraptor/varlociraptor/master.svg?label=test%20coverage)](https://codecov.io/gh/varlociraptor/varlociraptor)
 [![API docs](https://img.shields.io/badge/API-documentation-blue.svg)](https://docs.rs/varlociraptor)

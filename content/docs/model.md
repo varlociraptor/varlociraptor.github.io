@@ -1,6 +1,6 @@
 +++
 title = "Statistical model"
-weight = 6
+weight = 7
 +++
 
 Underlying varlociraptor is a novel theory of variant calling that is able to handle all length ranges (from small to SV) in a unified way, while allowing to include any kind of uncertainty (mapping, typing, strand, read orientation, ...).

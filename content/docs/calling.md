@@ -12,7 +12,7 @@ Let `reference.fa` be the reference genome FASTA file (indexed with [samtools](h
 ## Preprocessing per-sample observations
 
 First, varlociraptor requires to preprocess the candidate variants in order to obtain per-sample observations for the actual calling process.
-Let `sample.bam` be the aligned reads of the sample to preprocess, and let `sample.alignment-properties.json` be the corresponding alignment property file obtained by running `varlociraptor estimate alignment-properties`, see [Estimating properties]({{< ref "estimating.md" >}}).
+Let `sample.bam` be the aligned reads of the sample to preprocess, and let `sample.alignment-properties.json` be the corresponding alignment property file obtained by running `varlociraptor estimate alignment-properties`, see [Estimating properties](@/docs/estimating.md).
 While varlociraptor does not require a particular read aligner, it assumes that provided mapping qualities (MAPQ) are as accurate as possible, and that too large indels are encoded as softclips (i.e. it expects BAMs in [bwa mem](https://bio-bwa.sourceforge.net/) style).
 Preprocessing can be started with
 
@@ -109,7 +109,8 @@ varlociraptor call variants tumor-normal --purity 0.75 --tumor tumor.bcf --norma
 
 with `0.75` being the purity (i.e. the cancer cell content) of the tumor sample.
 The result is a proper stastistical assessment of the somatic and germline variants, without the need to apply any ad-hoc filtering.
-Instead, it should be followed by controlling the false discovery rate over the desired events, see [Filtering]({{< ref "filtering.md" >}}).
+Instead, it should be followed by controlling the false discovery rate over the desired events, see [Filtering](@/docs/filtering.md).
+The generated output format (both before and after any filtering), including all provided information, is described [here](@/docs/output.md).
 
 ## Generic variant calling
 
@@ -174,12 +175,14 @@ varlociraptor call variants generic --scenario scenario.yaml --obs relapse=relap
 
 Note that now, observation files are given with a leading name, which has to correspond to the name defined in the scenario YAML.
 The result is a proper stastistical assessment of the desired scenario, without the need to apply any ad-hoc filtering.
-Instead, it should be followed by controlling the false discovery rate over the desired events, see [Filtering]({{< ref "filtering.md" >}}).
+Instead, it should be followed by controlling the false discovery rate over the desired events, see [Filtering](@/docs/filtering.md).
+The generated output format (both before and after any filtering), including all provided information, is described [here](@/docs/output.md).
 
 ### Configuring the joint prior distribution
 
 When mutation rates for the species you investigate (or the tumor) are known, it is possible to inform Varlociraptor about such prior knowledge, including inheritance relations. 
 Which sufficient evidence, such prior knowledge is less important, however, it can play a role in corner cases (in particular at low coverage), and it can help the system to make the correct decision in case of ambiguity.
+It can also help a lot to distinguish between artifacts and true variants.
 In the following example, instead of defining uniform allele frequency universes as above, we define the inheritance relationship between samples and the properties of the underlying species.
 
 ```yaml

@@ -1,6 +1,6 @@
 +++
 title = "Reporting issues"
-weight = 5
+weight = 6
 +++
 
 For reporting issues, please use our [issue tracker](https://github.com/varlociraptor/varlociraptor/issues).

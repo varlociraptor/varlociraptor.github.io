@@ -16,7 +16,7 @@ varlociraptor estimate alignment-properties reference.fa --bam sample.bam > samp
 
 By default, varlociraptor uses all suitable alignments in the provided file, use `--num-records NUM` to restrict the number of alignments used.
 
-The alignment properties can then be passed on to `varlociraptor preprocess variants`, see [Calling variants]({{< ref "calling.md" >}}).
+The alignment properties can then be passed on to `varlociraptor preprocess variants`, see [Calling variants](@/docs/calling.md).
 
 ## Estimating mutational burden
 

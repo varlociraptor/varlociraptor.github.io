@@ -16,13 +16,21 @@ Hence, it will start with the very clear cases, followed by borderline cases, an
 In contrast, local FDR control means that for each individual variant call, the probability to be a false discovery may not exceed the given threshold.
 This leads to more intuitive results, since no obvious false positives are inserted just to reach the desired threshold as it happens with global FDR control.
 
+### Smart vs. strict mode
+
+In either case (local or global), you can choose between `smart` or `strict` FDR control.
+In the latter case, Varlociraptor controls the FDR over the sum of the posterior probabilities of the chosen events of interest (the events you want to filter for, see below).
+In the former case, Varlociraptor first controls the FDR over the probabilities for the variants to be present (i.e. not absent and not being an artifact). Second, it keeps only those variants that pass the FDR control and in addition where the posterior probabilities for the events of interest sum up to at least 50% probability.
+
+The smart mode leads to more intuitive results, as it successfully captures borderline cases between different events, while effectively removing false positives. It is therefore recommended to use the smart mode (as we also do in all examples below).
+
 ### Control local FDR
 
 Let `calls.bcf` be the output of the varlociraptor calling command.
 Then, by running e.g.
 
 ```bash
-varlociraptor filter-calls control-fdr --local calls.bcf --events SOMATIC_TUMOR --fdr 0.05
+varlociraptor filter-calls control-fdr --mode local-smart calls.bcf --events SOMATIC_TUMOR --fdr 0.05
 ```
 
 calls can be filtered to all single nucleotide variants (SNVs) that newly occur in a tumor sample (i.e. are somatic) with a **local** FDR of 5%.
@@ -32,7 +40,7 @@ calls can be filtered to all single nucleotide variants (SNVs) that newly occur 
 For controlling the global FDR, you could issue the following command:
 
 ```bash
-varlociraptor filter-calls control-fdr calls.bcf --events SOMATIC_TUMOR --fdr 0.05 --var SNV
+varlociraptor filter-calls control-fdr calls.bcf --mode global-smart --events SOMATIC_TUMOR --fdr 0.05 --var SNV
 ```
 
 The reason for stratifying by variant type here is that their probabilities can fall into largely different ranges.

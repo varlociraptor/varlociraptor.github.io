@@ -161,10 +161,6 @@ In the following, we briefly describe each element for the grammar.
 * `expressions`: analogous to `events`, expressions allow to define formulas, each with a given name. However, expressions are by default ignored, and have to be explicitly used from within `events` formulae. For example, let `myexpr` be the name of an expression, then it can be used in any formula by specifying `$myexpr`.
 
 For each variant, Varlociraptor will calculate the probability of each defined event to be true.
-Importantly, for proper results, the given events have to **cover the entire range of possibilities**. 
-Otherwise, the calculated posterior probabilities would be biased.
-The absent event (i.e. here `tumor:0.0 & normal:0.0 & relapse:0.0`) is added implicitly though.
-
 Let `scenario.yaml` be the defined calling scenario (e.g., as above).
 Let `relapse.bcf`, `tumor.bcf`, and `normal.bcf` be the preprocessed observations of relapse, tumor and healthy/normal sample, respectively, as defined above.
 Then, the calling command would be
@@ -177,6 +173,12 @@ Note that now, observation files are given with a leading name, which has to cor
 The result is a proper stastistical assessment of the desired scenario, without the need to apply any ad-hoc filtering.
 Instead, it should be followed by controlling the false discovery rate over the desired events, see [Filtering](@/docs/filtering.md).
 The generated output format (both before and after any filtering), including all provided information, is described [here](@/docs/output.md).
+
+#### Important notes on event design
+
+* If a sample is not mentioned in an event formula, it is automatically added based on prior or universe definition (e.g., the germline event above only mentions the normal sample, the tumor and relapse samples are implicitly added by Varlociraptor based on the definition of the universe (here) or prior assumptions (below)).
+* The absent event (i.e. here `tumor:0.0 & normal:0.0 & relapse:0.0`) is always added implicitly and does not need to be defined.
+* For proper results, the given events have to **cover the entire range of possibible allele frequency combinations**. Otherwise, the calculated posterior probabilities would be biased. This means that you should carefully check whether each combination of allele frequencies that you consider biologically possible is covered by one event. In turn, this also means that you can intentionally leave out a combination of allele frequencies that you explicitly do not want the model to consider as a possibility.
 
 ### Configuring the joint prior distribution
 

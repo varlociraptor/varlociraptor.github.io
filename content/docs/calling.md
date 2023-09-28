@@ -13,7 +13,13 @@ Let `reference.fa` be the reference genome FASTA file (indexed with [samtools](h
 
 First, varlociraptor requires to preprocess the candidate variants in order to obtain per-sample observations for the actual calling process.
 Let `sample.bam` be the aligned reads of the sample to preprocess, and let `sample.alignment-properties.json` be the corresponding alignment property file obtained by running `varlociraptor estimate alignment-properties`, see [Estimating properties](@/docs/estimating.md).
-While varlociraptor does not require a particular read aligner, it assumes that provided mapping qualities (MAPQ) are as accurate as possible, and that too large indels are encoded as softclips (i.e. it expects BAMs in [bwa mem](https://bio-bwa.sourceforge.net/) style).
+
+### Assumptions
+
+* While varlociraptor does not require a particular read aligner, it assumes that provided mapping qualities (MAPQ) are as accurate as possible, and that too large indels are encoded as softclips (i.e. it expects BAMs in [bwa mem](https://bio-bwa.sourceforge.net/) style).
+* By default, varlociraptor assumes that given candidate variants are merged into small haplotypes (given as MNVs or more complex replacements like provided e.g. by freebayes). If your candidates do not satisfy this assumption (i.e. are rather "atomic"), you should
+  **activate the flag** `--atomic-candidate-variants`. This will deactivate realignment for SNVs and MNVs in varlociraptor, because that can induce false positives in case variants close by that are in phase are given in as individual records.
+
 Preprocessing can be started with
 
 ```bash

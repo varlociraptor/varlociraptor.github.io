@@ -20,6 +20,7 @@ Let `sample.bam` be the aligned reads of the sample to preprocess, and let `samp
 * By default, varlociraptor assumes that given candidate variants are merged into small haplotypes (given as MNVs or more complex replacements like provided e.g. by freebayes). If your candidates do not satisfy this assumption (i.e. are rather "atomic"), you should
   **activate the flag** `--atomic-candidate-variants`. This will deactivate realignment for SNVs and MNVs in varlociraptor, because that can induce false positives in case variants close by that are in phase are given in as individual records.
 
+### Executing preprocessing
 Preprocessing can be started with
 
 ```bash

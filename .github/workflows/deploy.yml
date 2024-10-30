@@ -19,5 +19,5 @@ jobs:
           # Target branch
           PAGES_BRANCH: master
           # Provide personal access token
-          TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
           BUILD_ONLY: ${{ github.event_name == 'pull_request' }}

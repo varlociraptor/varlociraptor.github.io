@@ -6,19 +6,13 @@ weight = 1
 ## Via Bioconda
 
 Varlociraptor can be best installed via [Bioconda](https://bioconda.github.io).
-After having Bioconda set up as outlined in the [docs](http://bioconda.github.io/user/install.html), you can install varlociraptor via
-
-```bash
-conda install varlociraptor 
-```
-
-or alternatively create an isolated software environment with
+After having Bioconda set up as outlined in the [docs](https://bioconda.github.io/#usage), you can install varlociraptor into an isolated software environment via
 
 ```bash
 conda create --name varlociraptor varlociraptor 
 ```
 
-In the latter case, activate the environment via
+Then, activate the environment via
 
 ```bash
 conda activate varlociraptor 
@@ -31,6 +25,11 @@ varlociraptor --help
 ```
 
 to inspect the command line interface.
+In any case, make sure you have the [latest stable version](https://bioconda.github.io/recipes/varlociraptor/README.html) by comparing with what is printed by
+
+```bash
+varlociraptor --version
+```
 
 ## Via Cargo
 

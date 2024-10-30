@@ -7,10 +7,6 @@ base_url = "https://varlociraptor.github.io"
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = false
 
-# Whether to do syntax highlighting
-# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
-highlight_code = true
-
 # Whether to build a search index to be used later on by a JavaScript library
 build_search_index = true
 
@@ -20,3 +16,8 @@ theme = "book-custom"
 [extra]
 # Put all your custom variables here
 book_number_chapters = false
+
+[markdown]
+# Whether to do syntax highlighting
+# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
+highlight_code = true

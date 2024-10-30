@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@master
       # Build & deploy
       - name: Build/Deploy
-        uses: shalzz/zola-deploy-action@v0.12.2
+        uses: shalzz/zola-deploy-action@v0.19.2
         env:
           # Target branch
           PAGES_BRANCH: master

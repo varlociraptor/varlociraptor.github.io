@@ -24,6 +24,13 @@ In the former case, Varlociraptor first controls the FDR over the probabilities 
 
 The smart mode leads to more intuitive results, as it successfully captures borderline cases between different events, while effectively removing false positives. It is therefore recommended to use the smart mode (as we also do in all examples below).
 
+#### Retaining artifacts
+
+Depending on the use case, it can be desired to consider variants marked as potential artifacts as wanted or unwanted when performing FDR control. For this purpose, Varlociraptor offers the flag `--smart-retain-artifacts`.
+The flag is only considered in `smart` mode.
+When the flag is activated, the `artifact` event is not considered when deciding about presence or absense of the variant (i.e. the probability for presence becomes 1 - the probability of the absent event).
+Using the flag can be useful when maximum sensitivity is wanted and the user intends to carefully investigate artifact calls manually instead of filtering them out during FDR control.
+
 ### Control local FDR
 
 Let `calls.bcf` be the output of the varlociraptor calling command.

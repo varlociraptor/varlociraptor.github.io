@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+      <!-- Enable responsiveness on mobile devices-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+      <title>Varlociraptor Homepage</title>
+
+      
+      
+
+      <!-- CSS -->
+      
+      <link rel="stylesheet" href="https://varlociraptor.github.io/book.css">
+      
+
+      
+      
+    </head>
+
+    <body>
+        <div class="menu">
+            
+            
+            <nav role="navigation">
+                <ul>
+                    
+                        
+                        
+                            
+                            <li >
+                                
+                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;landing&#x2F;">
+                                    
+                                    Home
+                                </a>
+                                
+                            </li>
+                        
+                            
+                            <li >
+                                
+                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;">
+                                    
+                                    Documentation
+                                </a>
+                                
+                                    <ul>
+                                        
+                                            <li >
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;installation&#x2F;">
+                                                    
+                                                    Installation
+                                                </a>
+                                            </li>
+                                        
+                                            <li >
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;calling&#x2F;">
+                                                    
+                                                    Calling variants
+                                                </a>
+                                            </li>
+                                        
+                                            <li class="active">
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;filtering&#x2F;">
+                                                    
+                                                    Filtering variant calls
+                                                </a>
+                                            </li>
+                                        
+                                            <li >
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;estimating&#x2F;">
+                                                    
+                                                    Estimating properties
+                                                </a>
+                                            </li>
+                                        
+                                            <li >
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;output&#x2F;">
+                                                    
+                                                    Output format
+                                                </a>
+                                            </li>
+                                        
+                                            <li >
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;reporting-issues&#x2F;">
+                                                    
+                                                    Reporting issues
+                                                </a>
+                                            </li>
+                                        
+                                            <li >
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;model&#x2F;">
+                                                    
+                                                    Statistical model
+                                                </a>
+                                            </li>
+                                        
+                                    </ul>
+                                
+                            </li>
+                        
+                            
+                            <li >
+                                
+                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;authors&#x2F;">
+                                    
+                                    Authors
+                                </a>
+                                
+                            </li>
+                        
+                    
+                    <li><a href="https://varlociraptor.github.io/varlociraptor-scenarios">Scenario catalog</a></li>
+                </ul>
+            </nav>
+            
+            <img src="/landing/varlociraptor-logo.svg" style="width: 8em; margin: auto; display: block; margin-top: 2em" />
+            
+        </div>
+
+        <div class="page">
+            <div class="page__header">
+                <div class="menu-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                
+                <span class="search-icon">🔎</span>
+                
+            </div>
+
+            <div class="page__content">
+                
+                <div class="search-container">
+                    <input id="search" type="search" placeholder="Search..">
+                    <div class="search-results">
+                        <div class="search-results__header"></div>
+                        <ul class="search-results__items"></ul>
+                    </div>
+                </div>
+                
+                <div class="book-content">
+                    
+    <h1>Filtering variant calls</h1>
+    <p>Varlociraptor provides built-in filtering mechanisms. Most importantly, these are designed to only require a single, meaningful parameter.</p>
+<h2 id="filtering-by-controlling-fdr">Filtering by controlling FDR</h2>
+<p>Variant calls from varlociraptor can be filtered by controlling the false discovery rate (FDR). You can choose to either control the global or the local FDR.
+We recommend the local FDR for the following reason.</p>
+<p>Controlling the global FDR means that Varlociraptor will try to find a set of variants that most closely reaches the given FDR threshold.
+Hence, it will start with the very clear cases, followed by borderline cases, and if there is still something left up to the desired threshold, it will even add clearly wrong variant calls, just to guarantee that the FDR is as close as possible to the desired threshold.</p>
+<p>In contrast, local FDR control means that for each individual variant call, the probability to be a false discovery may not exceed the given threshold.
+This leads to more intuitive results, since no obvious false positives are inserted just to reach the desired threshold as it happens with global FDR control.</p>
+<h3 id="smart-vs-strict-mode">Smart vs. strict mode</h3>
+<p>In either case (local or global), you can choose between <code>smart</code> or <code>strict</code> FDR control.
+In the latter case, Varlociraptor controls the FDR over the sum of the posterior probabilities of the chosen events of interest (the events you want to filter for, see below).
+In the former case, Varlociraptor first controls the FDR over the probabilities for the variants to be present (i.e. not absent and not being an artifact). Second, it keeps only those variants that pass the FDR control and in addition where the posterior probabilities for the events of interest sum up to at least 50% probability.</p>
+<p>The smart mode leads to more intuitive results, as it successfully captures borderline cases between different events, while effectively removing false positives. It is therefore recommended to use the smart mode (as we also do in all examples below).</p>
+<h4 id="retaining-artifacts">Retaining artifacts</h4>
+<p>Depending on the use case, it can be desired to consider variants marked as potential artifacts as wanted or unwanted when performing FDR control. For this purpose, Varlociraptor offers the flag <code>--smart-retain-artifacts</code>.
+The flag is only considered in <code>smart</code> mode.
+When the flag is activated, the <code>artifact</code> event is not considered when deciding about presence or absense of the variant (i.e. the probability for presence becomes 1 - the probability of the absent event).
+Using the flag can be useful when maximum sensitivity is wanted and the user intends to carefully investigate artifact calls manually instead of filtering them out during FDR control.</p>
+<h3 id="control-local-fdr">Control local FDR</h3>
+<p>Let <code>calls.bcf</code> be the output of the varlociraptor calling command.
+Then, by running e.g.</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">varlociraptor</span><span> filter-calls control-fdr</span><span style="color:#bf616a;"> --mode</span><span> local-smart calls.bcf</span><span style="color:#bf616a;"> --events</span><span> SOMATIC_TUMOR</span><span style="color:#bf616a;"> --fdr</span><span> 0.05
+</span></code></pre>
+<p>calls can be filtered to all single nucleotide variants (SNVs) that newly occur in a tumor sample (i.e. are somatic) with a <strong>local</strong> FDR of 5%.</p>
+<h3 id="control-global-fdr">Control global FDR</h3>
+<p>For controlling the global FDR, you could issue the following command:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">varlociraptor</span><span> filter-calls control-fdr calls.bcf</span><span style="color:#bf616a;"> --mode</span><span> global-smart</span><span style="color:#bf616a;"> --events</span><span> SOMATIC_TUMOR</span><span style="color:#bf616a;"> --fdr</span><span> 0.05</span><span style="color:#bf616a;"> --var</span><span> SNV
+</span></code></pre>
+<p>The reason for stratifying by variant type here is that their probabilities can fall into largely different ranges.
+For example, most likely the probabilities for SNVs are likely much stronger than for indels and structural variants.
+Hence, performing a combined instead of stratified FDR control would lead to a domination of SNVs in the resulting set.
+Instead, by stratification we get the maximum resultion for each type of variant in case of global FDR control.</p>
+
+
+                </div>
+            </div>
+
+            <div class="prev-link">
+                
+    
+        
+        
+        <a class="previous" href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;"><</a>
+    
+
+            </div>
+
+            <div class="next-link">
+                
+    
+        
+        
+        
+        
+            
+            
+            
+        
+            
+            
+            
+                
+            
+                
+            
+                
+                    
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+        
+            
+            
+                <a class="next" href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;authors&#x2F;">></a>
+                
+                
+            
+            
+        
+    
+
+            </div>
+        </div>
+
+        
+            
+            <script type="text/javascript" src="https://varlociraptor.github.io/elasticlunr.min.js"></script>
+            <script type="text/javascript" src="https://varlociraptor.github.io/search_index.en.js"></script>
+            
+            <script type="text/javascript" src="https://varlociraptor.github.io/book.js"></script>
+        
+    </body>
+
+</html>

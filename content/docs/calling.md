@@ -21,6 +21,7 @@ Let `sample.bam` be the aligned reads of the sample to preprocess, and let `samp
   **activate the flag** `--atomic-candidate-variants`. This will deactivate realignment for SNVs and MNVs in varlociraptor, because that can induce false positives in case variants close by that are in phase are given in as individual records.
 
 ### Executing preprocessing
+
 Preprocessing can be started with
 
 ```bash
@@ -190,7 +191,7 @@ The generated output format (both before and after any filtering), including all
 
 ### Configuring the joint prior distribution
 
-When mutation rates for the species you investigate (or the tumor) are known, it is possible to inform Varlociraptor about such prior knowledge, including inheritance relations. 
+When mutation rates for the species you investigate (or the tumor) are known, it is possible to inform Varlociraptor about such prior knowledge, including inheritance relations.
 Which sufficient evidence, such prior knowledge is less important, however, it can play a role in corner cases (in particular at low coverage), and it can help the system to make the correct decision in case of ambiguity.
 It can also help a lot to distinguish between artifacts and true variants.
 In the following example, instead of defining uniform allele frequency universes as above, we define the inheritance relationship between samples and the properties of the underlying species.
@@ -267,6 +268,25 @@ All other keywords can be looked up in the section above.
 Various concrete applications of the grammar can be found in the [Varlociraptor Scenario Catalog](https://varlociraptor.github.io/varlociraptor-scenarios).
 You are welcome to submit further applications there.
 
+## Methylation Calling
+
+Varlociraptor supports the detection of methylation. Candidate methylation sites can be generated from a reference genome using the `methylation-candidates` subcommand. Specify the methylation motifs of interest as a comma-separated list. Supported motifs are: `CG`, `CHG`, `CHH`, `GATC`.
+The command for the creation of a candidate file would be
+
+```yaml
+varlociraptor methylation-candidates --motifs <motifs> reference.fa candidates.bcf
+```
+
+During preprocessing, Varlociraptor needs to know how to infer methylation from the given alignment file. The type of methylation information must be specified in the preprocessing subcommand using `--methylation-read-type <type>`, where `<type>` is either:
+
+* `converted`: reads treated with bisulfite or enzymatic conversion, typically used for short-read methylation inference. Unmethylated cytosines have been transformed to thymines.
+* `annotated`: reads with methylation information in the `MM` and `ML` tags of the BAM/CRAM file, typically used for long-read methylation inference.
+
+### Notes
+
+* Only the specified motifs are considered during candidate generation and preprocessing.
+* The generated observation files can be used in downstream methylation calling with `varlociraptor call variants`.
+
 ## Supported variant types
 
 Varlociraptor implements support for all kinds of variants in all length ranges
@@ -278,4 +298,5 @@ Varlociraptor implements support for all kinds of variants in all length ranges
 * Deletions (small and large),
 * Inversions (small and large),
 * Duplications (small and large),
-* Breakends.
+* Breakends
+* Methylation.

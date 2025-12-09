@@ -192,7 +192,7 @@ The generated output format (both before and after any filtering), including all
 ### Configuring the joint prior distribution
 
 When mutation rates for the species you investigate (or the tumor) are known, it is possible to inform Varlociraptor about such prior knowledge, including inheritance relations.
-Which sufficient evidence, such prior knowledge is less important, however, it can play a role in corner cases (in particular at low coverage), and it can help the system to make the correct decision in case of ambiguity.
+With sufficient evidence, such prior knowledge is less important, however, it can play a role in corner cases (in particular at low coverage), and it can help the system to make the correct decision in case of ambiguity.
 It can also help a lot to distinguish between artifacts and true variants.
 In the following example, instead of defining uniform allele frequency universes as above, we define the inheritance relationship between samples and the properties of the underlying species.
 

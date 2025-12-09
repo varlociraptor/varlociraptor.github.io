@@ -273,7 +273,7 @@ You are welcome to submit further applications there.
 Varlociraptor supports the detection of methylation. Candidate methylation sites can be generated from a reference genome using the `methylation-candidates` subcommand. Specify the methylation motifs of interest as a comma-separated list. Supported motifs are: `CG`, `CHG`, `CHH`, `GATC`.
 The command for the creation of a candidate file would be
 
-```yaml
+```bash
 varlociraptor methylation-candidates --motifs <motifs> reference.fa candidates.bcf
 ```
 

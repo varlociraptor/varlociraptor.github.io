@@ -23,12 +23,11 @@ h1 {
 
 ### Key features
 
-
-* Calls SNVs, MNVs, indels, arbitrary replacements, inversions, duplications, haplotype blocks (combinations of any of the previous), and breakends.
+* Calls SNVs, MNVs, indels, arbitrary replacements, inversions, duplications, haplotype blocks (combinations of any of the previous), methylation and breakends.
 * Supports all length ranges (from small to structural) with a unified statistical model.
 * The statistical model entails all possible sources of uncertainty (mapping, typing, heterogeneity) and biases (strand, read pair orientation, read position, sampling, contamination, homologous regions).
 * Resulting variant calls can be filtered by false discovery rate. No parameter tuning necessary.
-* Maximum a posteriori allele frequency estimates are provided with each call.
+* Each call provides a maximum a posteriori alteration fraction estimate, interpreted as variant allele frequency, allelic fraction, or methylation rate depending on the biological context.
 
 ### Calling modes
 

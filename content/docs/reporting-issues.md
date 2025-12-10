@@ -35,7 +35,7 @@ The `testcase.yaml` looks similar to this:
 
 ```yaml
 expected:
-  allelefreqs:
+  altfracs:
     # write down a list of expressions of the form
     - sample_name > 0.45 && sample_name < 0.55
   posteriors:
@@ -69,7 +69,7 @@ options: '{"Call": {"kind": {"Variants": {"spurious_ins_rate": 2.8e-06, "spuriou
   {"TumorNormal": {"tumor": "tumor.bam", "normal": "normal.bam", "purity": 1.0}}}}}}'
 ```
 
-The first section `expected`, has to be edited by you in order to denote the expected allele frequencies, and the posterior probabilities.
+The first section `expected`, has to be edited by you in order to denote the expected alteration fractions (variant allele frequencies/allelic fractions or methylation rates), and the posterior probabilities.
 Thereby, both fields are optional.
 
 Finally, the testcase can be zipped and attached to a [new issue in our issue tracker](https://github.com/varlociraptor/varlociraptor/issues).

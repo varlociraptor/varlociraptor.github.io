@@ -29,7 +29,7 @@ varlociraptor estimate mutational-burden --coding-genome-size 3e7 --sample tumor
 ```
 
 Varlociraptor will produce a [Vega-Lite](https://vega.github.io/vega-lite) specification of a plot, where the x-axis depicts the
-minimum alteration fraction (variant allele frequency/allelic fraction or methylation rate), and the y-axis shows the mutational burden in mutations per megabase.
+minimum alteration fraction (here variant allele frequency/allelic fraction), and the y-axis shows the mutational burden in mutations per megabase.
 The input file `calls.annotated.bcf` has to be a VCF/BCF file that has been obtained from Varlociraptor and annotated with e.g. [SnpEff](http://snpeff.sourceforge.net), such that Varlociraptor can select non-synonymous coding mutations.
 The vega specification is a text file in JSON format, that can be converted to e.g. an SVG image via the [Vega-Lite command line utilities](https://anaconda.org/conda-forge/vega-lite-cli):
 

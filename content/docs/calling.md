@@ -277,7 +277,8 @@ The command for the creation of a candidate file would be
 varlociraptor methylation-candidates --motifs <motifs> reference.fa candidates.bcf
 ```
 
-During preprocessing, Varlociraptor needs to know how to infer methylation from the given alignment file. The type of methylation information must be specified in the preprocessing subcommand using `--methylation-read-type <type>`, where `<type>` is either:
+The candidates can be given to the regular `varlociraptor preprocess variants` subcommand (see above).
+Thereby, Varlociraptor though needs to know how to infer methylation from the given alignment file. The type of methylation information must be specified via `--methylation-read-type <type>`, where `<type>` is either:
 
 * `converted`: reads treated with bisulfite or enzymatic conversion, typically used for short-read methylation inference. Unmethylated cytosines have been transformed to thymines.
 * `annotated`: reads with methylation information in the `MM` and `ML` tags of the BAM/CRAM file, typically used for long-read methylation inference.

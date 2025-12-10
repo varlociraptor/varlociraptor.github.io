@@ -40,7 +40,7 @@ vl2svg tmb.vl.json tmb.svg
 Note that the coding genome size given with `--coding-genome-size` has to reflect the *measured part* of the coding genome.
 In case the estimation is conducted on e.g. panel sequencing (where only a small number of genes is captured), the value has
 to be the size of the coding genome within this capturing.
-After using vl2svg for convertion of the JSON to an image, the result can look like this:
+After using vl2svg for conversion of the JSON to an image, the result can look like this:
 
 ![example-tmb-plot](../tmb.svg)
 

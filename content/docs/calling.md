@@ -282,6 +282,9 @@ During preprocessing, Varlociraptor needs to know how to infer methylation from 
 * `converted`: reads treated with bisulfite or enzymatic conversion, typically used for short-read methylation inference. Unmethylated cytosines have been transformed to thymines.
 * `annotated`: reads with methylation information in the `MM` and `ML` tags of the BAM/CRAM file, typically used for long-read methylation inference.
 
+After preprocessing, calling can be performed as described above, with a scenario that would typically be specific for the methylation calling, e.g. describing relations between multiple samples and events of interest.
+Until further investigation of methylation priors, the alteration fraction (i.e. here methylation rate) universe should be defined as uniform and continuous (`universe: [0.0,1.0]`).
+
 ## Supported variant types
 
 Varlociraptor implements support for all kinds of variants in all length ranges

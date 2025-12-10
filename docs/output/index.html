@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+      <!-- Enable responsiveness on mobile devices-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+      <title>Varlociraptor Homepage</title>
+
+      
+      
+
+      <!-- CSS -->
+      
+      <link rel="stylesheet" href="https://varlociraptor.github.io/book.css">
+      
+
+      
+      
+    </head>
+
+    <body>
+        <div class="menu">
+            
+            
+            <nav role="navigation">
+                <ul>
+                    
+                        
+                        
+                            
+                            <li >
+                                
+                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;landing&#x2F;">
+                                    
+                                    Home
+                                </a>
+                                
+                            </li>
+                        
+                            
+                            <li >
+                                
+                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;">
+                                    
+                                    Documentation
+                                </a>
+                                
+                                    <ul>
+                                        
+                                            <li >
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;installation&#x2F;">
+                                                    
+                                                    Installation
+                                                </a>
+                                            </li>
+                                        
+                                            <li >
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;calling&#x2F;">
+                                                    
+                                                    Calling variants
+                                                </a>
+                                            </li>
+                                        
+                                            <li >
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;filtering&#x2F;">
+                                                    
+                                                    Filtering variant calls
+                                                </a>
+                                            </li>
+                                        
+                                            <li >
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;estimating&#x2F;">
+                                                    
+                                                    Estimating properties
+                                                </a>
+                                            </li>
+                                        
+                                            <li class="active">
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;output&#x2F;">
+                                                    
+                                                    Output format
+                                                </a>
+                                            </li>
+                                        
+                                            <li >
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;reporting-issues&#x2F;">
+                                                    
+                                                    Reporting issues
+                                                </a>
+                                            </li>
+                                        
+                                            <li >
+                                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;model&#x2F;">
+                                                    
+                                                    Statistical model
+                                                </a>
+                                            </li>
+                                        
+                                    </ul>
+                                
+                            </li>
+                        
+                            
+                            <li >
+                                
+                                <a href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;authors&#x2F;">
+                                    
+                                    Authors
+                                </a>
+                                
+                            </li>
+                        
+                    
+                    <li><a href="https://varlociraptor.github.io/varlociraptor-scenarios">Scenario catalog</a></li>
+                </ul>
+            </nav>
+            
+            <img src="/landing/varlociraptor-logo.svg" style="width: 8em; margin: auto; display: block; margin-top: 2em" />
+            
+        </div>
+
+        <div class="page">
+            <div class="page__header">
+                <div class="menu-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                
+                <span class="search-icon">🔎</span>
+                
+            </div>
+
+            <div class="page__content">
+                
+                <div class="search-container">
+                    <input id="search" type="search" placeholder="Search..">
+                    <div class="search-results">
+                        <div class="search-results__header"></div>
+                        <ul class="search-results__items"></ul>
+                    </div>
+                </div>
+                
+                <div class="book-content">
+                    
+    <h1>Output format</h1>
+    <h2 id="variant-calling">Variant calling</h2>
+<p>Invocations of <code>varlociraptor call variants</code> output variant calls in <a href="https://samtools.github.io/hts-specs/VCFv4.2.pdf">BCF format</a> (either printed out to STDOUT, the default, or saved to a given path).
+The output follows the established standard, but adds some fields are different or have a slightly different meaning than what you might be used to from other variant callers.</p>
+<h3 id="info-fields">INFO fields</h3>
+<ul>
+<li>Varlociraptor uses the usual fields to encode structural variant information (<code>SVTYPE</code>, <code>SVLEN</code>, <code>END</code>, <code>MATEID</code>, <code>EVENT</code>), as defined in the <a href="https://samtools.github.io/hts-specs/VCFv4.2.pdf">VCF/BCF standard</a>.</li>
+<li>In addition it provides one field for each event defined in the calling scenario (<code>PROB_EVENTNAME</code> with <code>eventname</code> is the name of the event in the scenario). These fields denote the posterior probability for this event, encoded in <a href="https://en.wikipedia.org/wiki/Phred_quality_score">PHRED scale</a> (the smaller the higher, with 0 being equal to an unscaled probability of 1). In addition to the events of the scenario, there are always the two implicit events <code>absent</code> and <code>artifact</code> (meaning that the variant in the record is not present at all or any kind of artifact, respectively), which are denoted in the corresponding field <code>PROB_ABSENT</code> and <code>PROB_ARTIFACT</code>. Together, all those posterior probabilities sum up to one (modulo minor numerical glitches caused by the encoding and available precision in BCF format).</li>
+</ul>
+<h3 id="sample-specific-format-fields">Sample specific (FORMAT) fields</h3>
+<ul>
+<li>By default, no genotype field (<code>GT</code>) is provided. The reason is that varlociraptor can be used to call much more complex scenarios that cannot be captured via genotypes (e.g. subclonal variants). If you still need a genotype field and your scenario is sufficiently simple, you can use <code>varlociraptor genotype</code> (see <code>varlociraptor genotype --help</code>) to annotate your BCF file with additional, standard compliant, genotype fields.</li>
+<li>The alteration fraction (variant allele frequency/allelic fraction or methylation rate) in each sample is stored in the <code>AF</code> field. This is Varlociraptor's actual replacement of the by default missing genotype. It allows to display heterozygous (<code>AF=0.5</code>) vs. homozygous calls (<code>AF=1.0</code>), as well as any subclonal events in between.</li>
+<li>The read depth is stored in the <code>DP</code> field of each sample. Importantly, this depth is not an ordinary read count, but rather the expected read depth given the mapping qualities of the reads covering the variant. Mathematically spoken it is the sum of the probabilities that each read maps correctly to the locus of the variant. This kind of depth is more accurate as it takes the mapping uncertainty into account, but it may differ slightly from the read counts you see e.g. when checking the pileup in IGV.</li>
+<li>The <code>SAOBS</code> field provides a simplified summary of the observations (e.g. read alignments) favoring the alternative (ALT) allele (has to be considered together with SROBS). Each entry is encoded as CB, with C being a count, B being the posterior odds for the alt allele. The provided letter denotes an extended Kass Raftery score: B=barely, P=positive, S=strong, V=very strong (lower case if probability for correct mapping of fragment is &lt;95%). Note that we extend Kass Raftery scores with a term for equality between the evidence of the two alleles (E=equal). Further note that there is no N=none score, as such observations occur with an opposite direction score (odds for the reference or a third allele) in the SROBS field.</li>
+<li>The <code>SROBS</code> field provides a simplified summary of the observations favoring the reference (REF) or a third allele (has to be considered together with SAOBS). Each entry is encoded as CB, with C being a count, B being the posterior odds for the reference or a third allele. The latter denotes an extended Kass Raftery score: E=equal, B=barely, P=positive, S=strong, V=very strong (lower case if probability for correct mapping of fragment is &lt;95%).</li>
+<li>The <code>OBS</code> field provides a detailed summary of the observations. Each entry is encoded as CBDTASOPXI, with C being a count,and B being the posterior odds for the alt or the reference allele. The latter are given as a two letter code. The first letter (<code>A</code> or <code>R</code>) defines whether the odds favor the alt allele (<code>A</code>) or any other allele including the reference allele <code>R</code>. The second letter denotes an extended Kass Raftery score: N=none, E=equal, B=barely, P=positive, S=strong, V=very strong (lower case if the probability for correct mapping of fragment is &lt;95%). Note that we extend Kass Raftery scores with a term for equality between the evidence of the two alleles (E=equal). D denotes the edit distance to the ALT allele in case it is higher than what could be expected from sequencing errors (in that case, Varlociraptor derives a third allele from the read sequence and considers that as an alternative to the alt allele, instead of the reference allele), T being the type of alignment, encoded as <code>s</code> = single end and <code>p</code> = paired end, A denoting whether the observations also map to an alternative locus (<code>#</code> = most found alternative locus, <code>*</code> = other locus, <code>.</code> = no locus), S being the strand that supports the observation (<code>+</code>, <code>-</code>, or <code>*</code> for both), O being the read orientation (<code>&gt;</code> = F1R2, <code>&lt;</code> = F2R1, <code>*</code> = unknown, <code>!</code> = non standard, e.g. R1F2), P being the read position (<code>^</code> = most found read position, <code>*</code> = any other position or position is irrelevant), X denoting whether the respective alignments entail a softclip (<code>$</code> = softclip, <code>.</code> = no soft clip), and I denoting indel operations in the respective alignments against the alt allele (<code>*</code> = some indel, <code>.</code> = no indel or information irrelevant for variant type).</li>
+<li>The <code>OOBS</code> field provides the number of omitted observations. For SNVs and MNVs, read pairs are omitted if they have a non-standard read orientation (neither F1R2 nor F2R1) as those can frequently lead to alignment artifacts.</li>
+<li>The <code>SB</code> field denotes the strand bias estimate: <code>+</code> indicates that ALT allele is associated with forward strand, <code>-</code> indicates that ALT allele is associated with reverse strand, <code>.</code> indicates no strand bias. Strand bias is indicative for systematic sequencing errors. Probability for strand bias is captured by the ARTIFACT event (PROB_ARTIFACT).</li>
+<li>The <code>ROB</code> field denotes the read orientation bias estimate: <code>&gt;</code> indicates that ALT allele is associated with F1R2 orientation, <code>&lt;</code> indicates that ALT allele is associated with F2R1 orientation, <code>.</code> indicates no read orientation bias. Read orientation bias is indicative of Guanin oxidation artifacts. Probability for read orientation bias is captured by the ARTIFACT event (PROB_ARTIFACT).</li>
+<li>The <code>RPB</code> field denotes the read position bias estimate: <code>^</code> indicates that ALT allele is associated with the most found read position, <code>.</code> indicates that there is no read position bias. Read position bias is indicative of systematic sequencing errors, e.g. in a specific cycle. Probability for read position bias is captured by the ARTIFACT event (PROB_ARTIFACT).</li>
+<li>The <code>SCB</code> field denotes the softclip bias estimate: <code>$</code> indicates that ALT allele is associated with with softclips in the same alignment, <code>.</code> indicates that there is no softclip bias. Softclip bias is indicative of systematic alignment errors, cause by a part of the read that does not properly align to the reference (and is thus soft clipped). Note that softclips can also be caused by structural variants. However, structural variants on the same haplotype as e.g. an SNV should not cause a softclip bias, because there will usually still be reads that do not reach the SV, thereby providing evidence against a softclip bias. Probability for softclip bias is captured by the ARTIFACT event (PROB_ARTIFACT).</li>
+<li>The <code>HE</code> field denotes the homopolymer error estimate: <code>*</code> indicates that ALT allele is associated with with homopolymer indel operations of varying length, <code>.</code> indicates that there is no homopolymer error. Homopolymer error is indicative of systematic PCR amplification errors. Probability for such homopolymer artifacts is captured by the ARTIFACT event (PROB_ARTIFACT).</li>
+<li>The <code>ALB</code> field denotes the alt locus bias estimate: <code>*</code> indicates that ALT allele is systematically associated with either MAPQs smaller than the maximum MAPQ or a major alternative alignment (XA tag) reported by the used read mapper. This would be indicative of ALT reads actually coming from another locus (e.g. some repeat, a homology, a distant variant allele, or a CNV). Probability for alt locus bias is captured by the ARTIFACT event (PROB_ARTIFACT).</li>
+<li>The <code>AFD</code> field provides the sampled posterior probability densities of alteration fractions in PHRED scale (the smaller the higher, with 0 being equal to an unscaled probability of 1). In the discrete case (no somatic mutation rate or continuous universe in the scenario), these can be seen as posterior probabilities. Note that densities can be greater than one. Further note that the densities of each sample are conditional on the maximum a posteriori alteration fractions of the other called samples.</li>
+</ul>
+
+
+                </div>
+            </div>
+
+            <div class="prev-link">
+                
+    
+        
+        
+        <a class="previous" href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;docs&#x2F;"><</a>
+    
+
+            </div>
+
+            <div class="next-link">
+                
+    
+        
+        
+        
+        
+            
+            
+            
+        
+            
+            
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+                    
+                
+            
+                
+            
+                
+            
+        
+            
+            
+                <a class="next" href="https:&#x2F;&#x2F;varlociraptor.github.io&#x2F;authors&#x2F;">></a>
+                
+                
+            
+            
+        
+    
+
+            </div>
+        </div>
+
+        
+            
+            <script type="text/javascript" src="https://varlociraptor.github.io/elasticlunr.min.js"></script>
+            <script type="text/javascript" src="https://varlociraptor.github.io/search_index.en.js"></script>
+            
+            <script type="text/javascript" src="https://varlociraptor.github.io/book.js"></script>
+        
+    </body>
+
+</html>

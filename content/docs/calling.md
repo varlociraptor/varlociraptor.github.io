@@ -293,5 +293,5 @@ Varlociraptor implements support for all kinds of variants in all length ranges
 * Deletions (small and large),
 * Inversions (small and large),
 * Duplications (small and large),
-* Breakends
+* Breakends,
 * Methylation.

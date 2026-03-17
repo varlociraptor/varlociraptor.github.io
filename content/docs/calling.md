@@ -1,26 +1,44 @@
 +++
-title = "Calling variants"
+title = "Calling alterations"
 weight = 2
 +++
 
-Varlociraptor allows to call small and structural variant events in different scenarios.
-Note that varlociraptor requires to provide a set of candidate variants to consider.
-By this, our model becomes independent of denovo variant detection mechanisms and can be combined with any caller (e.g. GATK, Freebayes, Delly, ...). In particular, you can also first combine candidates from different callers, to cover diverse variant types and length ranges.
-Let `candidates.bcf` be the set of candidate variant calls (VCF or BCF format, see [bcftools](https://samtools.github.io/bcftools/)).
-Let `reference.fa` be the reference genome FASTA file (indexed with [samtools](https://www.htslib.org/doc/samtools.html)).
+Varlociraptor allows to call various kinds of genomic (and in theory transcriptomic) alterations in diverse scenarios.
+This includes small and structural genomic variants as well as methylation.
 
-## Preprocessing per-sample observations
+## Obtaining candidate alterations
 
-First, varlociraptor requires to preprocess the candidate variants in order to obtain per-sample observations for the actual calling process.
-Let `sample.bam` be the aligned reads of the sample to preprocess, and let `sample.alignment-properties.json` be the corresponding alignment property file obtained by running `varlociraptor estimate alignment-properties`, see [Estimating properties](@/docs/estimating.md).
+Note that varlociraptor requires to provide a set of candidate alterations to consider.
+They have to be provided in VCF or BCF format (see [bcftools](https://samtools.github.io/bcftools/)).
 
-### Assumptions
+### Variants
+
+Varlociraptor can handle any kind of candidate genomic variants.
+By this, our model becomes independent of denovo detection mechanisms and can be combined with e.g. any variant caller (e.g. GATK, Freebayes, Delly, ...).
+In particular, you can also first combine candidates from different callers, to cover diverse variant types and length ranges.
+Moreover, it is also possible to use known variants (e.g. from databases).
+
+### Methylation
+
+Candidate methylation sites can be generated from a reference genome using the `methylation-candidates` subcommand. Specify the methylation motifs of interest as a comma-separated list. Supported motifs are: `CG`, `CHG`, `CHH`, `GATC`.
+The command for the creation of a candidate file is
+
+```bash
+varlociraptor methylation-candidates --motifs <motifs> reference.fa candidates.bcf
+```
+
+## Assumptions
 
 * While varlociraptor does not require a particular read aligner, it assumes that provided mapping qualities (MAPQ) are as accurate as possible, and that too large indels are encoded as softclips (i.e. it expects BAMs in [bwa mem](https://bio-bwa.sourceforge.net/) style).
-* By default, varlociraptor assumes that given candidate variants are merged into small haplotypes (given as MNVs or more complex replacements like provided e.g. by freebayes). If your candidates do not satisfy this assumption (i.e. are rather "atomic"), you should
+* By default, varlociraptor assumes that given candidate alterations are merged into small haplotypes (given as MNVs or more complex replacements like provided e.g. by freebayes). If your candidates do not satisfy this assumption (i.e. are rather "atomic"), you should
   **activate the flag** `--atomic-candidate-variants`. This will deactivate realignment for SNVs and MNVs in varlociraptor, because that can induce false positives in case variants close by that are in phase are given in as individual records.
 
-### Executing preprocessing
+## Preprocessing
+
+First, varlociraptor requires to preprocess the candidate alterations in order to obtain per-sample observations for the actual calling process.
+Let `candidates.bcf` be the set of candidate alterations (VCF or BCF format, see [bcftools](https://samtools.github.io/bcftools/)).
+Let `reference.fa` be the reference genome FASTA file (indexed with [samtools](https://www.htslib.org/doc/samtools.html)).
+Let `sample.bam` be the aligned reads of the sample to preprocess, and let `sample.alignment-properties.json` be the corresponding alignment property file obtained by running `varlociraptor estimate alignment-properties`, see [Estimating properties](@/docs/estimating.md).
 
 Preprocessing can be started with
 
@@ -28,18 +46,28 @@ Preprocessing can be started with
 varlociraptor preprocess variants reference.fa --alignment-properties sample.alignment-properties.json --bam sample.bam < candidates.bcf > sample.observations.bcf
 ```
 
-In other words, the candidate variants are piped into varlociraptor (with the `<` shell operator) and observations are piped into `sample.observations.bcf` (with the `>` shell operator).
+In other words, the candidate alterations are piped into varlociraptor (with the `<` shell operator) and observations are piped into `sample.observations.bcf` (with the `>` shell operator).
 
-Note that the candidate variants (here ``candidates.bcf``) have to be **the same for each sample**.
+Note that the candidate alterations (here ``candidates.bcf``) have to be **the same for each sample**.
 This can be achieved by either jointly calling across all samples (as possible with most variant callers), or by merging candidates from all involved samples into a single VCF/BCF file.
 
-From the candidate variant file, only `CHROM`, `POS`, `REF`, `ALT`, `EVENT`, `MATEID`, `END`, and `SVLEN` (if present) are used. Other fields are ignored.
+### Variant preprocessing
+
+From the candidate alterations file, only `CHROM`, `POS`, `REF`, `ALT`, `EVENT`, `MATEID`, `END`, and `SVLEN` (if present) are used. Other fields are ignored.
 The `EVENT` and `MATEID` fields thereby groups variants into a common haplotype.
 For breakends this happens as defined in the [VCF specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf).
 For other types of variants the same semantic is used: all variants that have the same value in their `EVENT` tag are considered to be in the same haplotype and the model will calculate the read support for the entire haplotype.
 In case of `MATEID`, variants are considered to be of the same haplotype if the set of `ID` and `MATEID` is the same. This is usually true for a pair of records, which reciprocally refer to each others IDs via the `MATEID` field.
 
-Variant types that are not (yet) supported by Varlociraptor will be dropped (with notification on STDERR).
+Alteration types that are not (yet) supported by Varlociraptor will be dropped (with notification on STDERR).
+
+### Methylation preprocessing
+
+The methylation candidates (see above) can be given to the regular `varlociraptor preprocess variants` subcommand (see above).
+Thereby, Varlociraptor though needs to know how to infer methylation from the given alignment file. The type of methylation information must be specified via `--methylation-read-type <type>`, where `<type>` is either:
+
+* `converted`: reads treated with bisulfite or enzymatic conversion, typically used for short-read methylation inference. Unmethylated cytosines have been transformed to thymines.
+* `annotated`: reads with methylation information in the `MM` and `ML` tags of the BAM/CRAM file, typically used for long-read methylation inference.
 
 ### Parallelization
 
@@ -80,8 +108,8 @@ varlociraptor call variants ...
 
 The dots (`...`) refer to the selected calling mode, which can be one of the following:
 
-1. **Tumor-normal variant calling:** this assumes that a tumor and a corresponding healthy sample is given.
-2. **Generic variant calling:** via a *variant calling grammar*, arbitrary calling scenarios can be defined.
+1. **Tumor-normal calling:** this assumes that a tumor and a corresponding healthy sample is given.
+2. **Generic calling:** via a *variant calling grammar*, arbitrary calling scenarios can be defined. This mode should also be used for methylation calling.
 
 ### Note on amplicon sequencing data
 
@@ -106,7 +134,7 @@ Alternative locus bias detection can be deactivated with
 varlociraptor call variants --omit-alt-locus-bias ...
 ```
 
-## Tumor-normal variant calling
+### Tumor-normal calling
 
 Let `tumor.bcf` and `normal.bcf` be the preprocessed observations (see above) of the tumor and healthy/normal sample, respectively.
 Then, variants of all lengths can be called with
@@ -120,7 +148,7 @@ The result is a proper stastistical assessment of the somatic and germline varia
 Instead, it should be followed by controlling the false discovery rate over the desired events, see [Filtering](@/docs/filtering.md).
 The generated output format (both before and after any filtering), including all provided information, is described [here](@/docs/output.md).
 
-## Generic variant calling
+### Generic calling
 
 The generic mode allows to define a calling scenario via a variant calling grammar.
 The grammar allows to define the desired scenario in a [YAML](https://yaml.org) file.
@@ -161,7 +189,7 @@ In the following, we briefly describe each element for the grammar.
 
 * `samples`: this section contains the definition of the involved samples. Each sample is listed by its name (e.g. `normal`) which is referred to later in the `events` section.
 * `resolution`: the accuracy in which the alteration fraction within continuous intervals is estimated. Intervals are evaluated via numerical integration. The grid points for that are determined via a binary search for the highest probability. This binary search stops when its left and right boundary is at least as close as the given resolution. For samples in which the exact alteration fraction is not so relevant (e.g. above in the normal sample in case of mosaicism), one can choose higher values like `0.1`. For a tumor sample, the usual choice is `0.01` (i.e. alteration fraction estimates will be at most `1%` away from the optimum). The default resolution if nothing is specified is `0.01`.
-* `universe`: valid alteration fractions in the given sample. The operator `|` denotes a logical "or". For example `0.0 | 0.5 | 1.0 | ]0.0,0.5[` means that an alteration fraction of `0.0`, `0.5`, `1.0` or any frequency in the interval `]0.0,0.5[` (with exlcusive bounds) is possible for the particular sample. Defining a `universe` means that a uniform prior is used. Alternatively, when the mutation rates are known, it is possible to configure Varlociraptors joint prior distribution that allows to model population genetics, mendelian inheritance and tumor evolution. See the next section for details.
+* `universe`: valid alteration fractions in the given sample. The operator `|` denotes a logical "or". For example `0.0 | 0.5 | 1.0 | ]0.0,0.5[` means that an alteration fraction of `0.0`, `0.5`, `1.0` or any fraction in the interval `]0.0,0.5[` (with exlcusive bounds) is possible for the particular sample. Defining a `universe` means that a uniform prior is used. Alternatively, when the mutation rates are known, it is possible to configure Varlociraptors joint prior distribution that allows to model population genetics, mendelian inheritance and tumor evolution. See the next section for details.
 * `contamination`: denotes the contamination of the sample with another sample (for example `1 - purity` in a tumor sample that is "contaminated" with normal cells), given by its name after the `by` key, and the fraction of contamination after the `fraction` key.
 * `events`: this section contains the definition of events that shall be evaluated. Each event is a boolean logic formula over operands that define alteration fractions or alteration fraction intervals in particular samples. These operands have the form `samplename:spec`, where spec is the specification of an alteration fraction (e.g. `0.5`) or an alteration fraction interval (inclusive: `[a,b]`, left-exclusive: `]a,b]`, right-exclusive: `[a,b[`, exclusive: `]a,b[`). An event formula may refer to another event by specifying it by its name preceded with a `$` character, e.g., `$myevent` refers to the event `myevent`. See [here](https://varlociraptor.github.io/varlociraptor-scenarios/scenarios/pedigree-prior/) for an example application of the latter. In addition, formulas my use the terminal symbols `true` and `false`.
 * In addition to using alteration fractions it is possible to define constraints over alteration fraction log2 fold changes (see event `somatic_tumor`). Further, simple comparisons of alteration fractions like `relapse > tumor` are allowed.
@@ -187,9 +215,9 @@ The generated output format (both before and after any filtering), including all
 * If a sample is not mentioned in an event formula, it is automatically added based on prior or universe definition (e.g., the germline event above only mentions the normal sample, the tumor and relapse samples are implicitly added by Varlociraptor based on the definition of the universe (here) or prior assumptions (below)).
 * The absent event (i.e. here `tumor:0.0 & normal:0.0 & relapse:0.0`) is always added implicitly and does not need to be defined.
 * For proper results, the given **events have to cover the entire range of possibible alteration fraction combinations**. Otherwise, the calculated posterior probabilities would be biased. This means that you should carefully check whether each combination of alteration fractions that you consider biologically possible is covered by one event. In turn, this also means that you can intentionally leave out a combination of alteration fractions that you explicitly do not want the model to consider as a possibility.
-* For proper results, **event definitions should be disjoint**. That means, that there should be no combination of alteration fractions over all involved samples for which more than one event is true. For example, in the scenario above, the `germline` and the `somatic_normal` event are disjoint because the `normal` sample frequency ranges do not overlap. If `somatic_normal` would have been (wrongly) defined as `normal:]0.0,0.5]`, there would be an invalid overlap which can distort the resulting posterior probabilities as Varlociraptor considers each defined event to be **independent**.
+* For proper results, **event definitions should be disjoint**. That means, that there should be no combination of alteration fractions over all involved samples for which more than one event is true. For example, in the scenario above, the `germline` and the `somatic_normal` event are disjoint because the `normal` sample fraction ranges do not overlap. If `somatic_normal` would have been (wrongly) defined as `normal:]0.0,0.5]`, there would be an invalid overlap which can distort the resulting posterior probabilities as Varlociraptor considers each defined event to be **independent**.
 
-### Configuring the joint prior distribution
+#### Configuring the joint prior distribution
 
 When mutation rates for the species you investigate (or the tumor) are known, it is possible to inform Varlociraptor about such prior knowledge, including inheritance relations.
 With sufficient evidence, such prior knowledge is less important, however, it can play a role in corner cases (in particular at low coverage), and it can help the system to make the correct decision in case of ambiguity.
@@ -258,33 +286,20 @@ Compared to the initial normal/tumor/relapse with a uniform prior example shown 
 
 * `species`: here, properties of the underlying species are defined, that is, the genome size (needed for the somatic prior), the heterozygosity (fraction of expected heterozygous sites), the germline mutation rate (for de novo mutations during the mendelian inheritance process), the ploidy for each sex. For the latter, `all` denotes the ploidy of all chromosomes, while below special cases are listed, e.g., for `X` and `Y` chromosomes.
 * `sex`: denotes the sex of each sample, thereby defining the ploidy, which is taken from the species definition (can be `female`, `male`, or arbitrary additional identifiers).
-* `somatic-effective-mutation-rate`: denotes the expected fraction of non-lethal de novo somatic mutations, independent of their frequency, in the genome. In other words, the given rate denotes the probability to encounter a somatic mutation at any random site in the genome, and all possible VAFs > 0.0 are thereby equally likely. The latter is an important simplification as usually the effects affecting the VAF (the point in time of the mutation, overlapping CNVs) are unknown a priori and would unnecessarily constrain the variant call. Instead, once the model decides for the existence of a somatic mutation, the VAF is driven purely by the data. Somatic mutation rates will usually differ between normal (can be found in literature) and tumor samples, and should be estimated or looked up for a given tumor instance. Note that it is also possible to simply define an alteration fraction `universe` for a tumor sample, thereby avoiding to specify a somatic effective mutation rate, in case it is still unknown. In that case, a uniform prior would be used for the tumor, while the rest of the sample would be treated according to the defined population genetic and mendelian priors.
+* `somatic-effective-mutation-rate`: denotes the expected fraction of non-lethal de novo somatic mutations, independent of their fraction, in the genome. In other words, the given rate denotes the probability to encounter a somatic mutation at any random site in the genome, and all possible alteration fractions > 0.0 are thereby equally likely. The latter is an important simplification as usually the effects affecting the alteration fraction (the point in time of the mutation, overlapping CNVs) are unknown a priori and would unnecessarily constrain the variant call. Instead, once the model decides for the existence of a somatic mutation, the alteration fraction is driven purely by the data. Somatic mutation rates will usually differ between normal (can be found in literature) and tumor samples, and should be estimated or looked up for a given tumor instance. Note that it is also possible to simply define an alteration fraction `universe` for a tumor sample, thereby avoiding to specify a somatic effective mutation rate, in case it is still unknown. In that case, a uniform prior would be used for the tumor, while the rest of the sample would be treated according to the defined population genetic and mendelian priors.
 * `inheritance`: Relationship to other samples. Inheritance can be `mendelian` (here, the `daughter` inherits from `father` and `mother`), or `clonal` (here, the `tumor` inherits from the normal tissue of the `daughter`). In case of the latter, it has to be specified additionally whether somatic mutations from the parental clone are inherited or not. Further, `subclonal` inheritance can be specified, which describes the case where e.g. one tumor sample inherits from another tumor sample (e.g. modeling a relapse or metastasis situation).
 
 All other keywords can be looked up in the section above.
 
-### Grammar applications
+##### Methylation calling
+
+For methylation calling, we suggest to use uniform priors (i.e. `universe: [0.0,1.0]`).
+
+
+#### Grammar applications
 
 Various concrete applications of the grammar can be found in the [Varlociraptor Scenario Catalog](https://varlociraptor.github.io/varlociraptor-scenarios).
 You are welcome to submit further applications there.
-
-## Methylation Calling
-
-Varlociraptor supports the detection of methylation. Candidate methylation sites can be generated from a reference genome using the `methylation-candidates` subcommand. Specify the methylation motifs of interest as a comma-separated list. Supported motifs are: `CG`, `CHG`, `CHH`, `GATC`.
-The command for the creation of a candidate file would be
-
-```bash
-varlociraptor methylation-candidates --motifs <motifs> reference.fa candidates.bcf
-```
-
-The candidates can be given to the regular `varlociraptor preprocess variants` subcommand (see above).
-Thereby, Varlociraptor though needs to know how to infer methylation from the given alignment file. The type of methylation information must be specified via `--methylation-read-type <type>`, where `<type>` is either:
-
-* `converted`: reads treated with bisulfite or enzymatic conversion, typically used for short-read methylation inference. Unmethylated cytosines have been transformed to thymines.
-* `annotated`: reads with methylation information in the `MM` and `ML` tags of the BAM/CRAM file, typically used for long-read methylation inference.
-
-After preprocessing, calling can be performed as described above, with a scenario that would typically be specific for the methylation calling, e.g. describing relations between multiple samples and events of interest.
-Until further investigation of methylation priors, the alteration fraction (i.e. here methylation rate) universe should be defined as uniform and continuous (`universe: [0.0,1.0]`).
 
 ## Supported variant types
 

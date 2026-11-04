@@ -86,3 +86,11 @@ With global FDR control (`--mode global-strict`), the maximum window sums are us
 Hence, `k` bounds the accepted posterior width: the smaller `k` and the more events, the more precise the allele frequency has to be.
 Since windows always start and end at bin borders, the effectively accepted width can vary, depending on where the posterior is located relative to the bins.
 Defining more, narrower bins (and increasing `k` accordingly) reduces this effect.
+
+Since the bins cover the entire range of possible allele frequencies (including zero, because of `--no-absent`), there is no absent event to control the FDR over.
+Therefore, always use the `strict` modes (`local-strict` or `global-strict`) here.
+In `smart` mode, the FDR would only be controlled over the artifact probability.
+
+Note that the events have to be given via `--events` in their natural order (e.g. ascending allele frequencies), as this order defines which events are adjacent.
+For the same reason, all given events have to be present in the BCF header.
+

@@ -22,6 +22,7 @@ In either case (local or global), you can choose between `smart` or `strict` FDR
 In the latter case, Varlociraptor controls the FDR over the sum of the posterior probabilities of the chosen events of interest (the events you want to filter for, see below).
 In the former case, Varlociraptor first controls the FDR over the probabilities for the alteration to be present (i.e. not absent and not being an artifact).
 Second, it keeps only those alterations that pass the FDR control and in addition where the posterior probabilities for the events of interest sum up to at least 50% probability.
+If the calls were made with `--no-absent`, `PROB_ABSENT` is missing and presence is determined by the artifact probability only (or is certain when using `--smart-retain-artifacts`).
 
 The smart mode leads to more intuitive results, as it successfully captures borderline cases between different events, while effectively removing false positives.
 It is therefore recommended to use the smart mode (as we also do in all examples below).
@@ -56,3 +57,32 @@ The reason for stratifying by alteration type here (`--var SNV`) is that their p
 For example, most likely the probabilities for SNVs are likely much stronger than for indels and structural variants.
 Hence, performing a combined instead of stratified FDR control would lead to a domination of SNVs in the resulting set.
 Instead, by stratification we get the maximum resultion for each type of alteration in case of global FDR control.
+
+### Filtering by posterior width
+
+Sometimes, the question is not whether an alteration is present, but how precisely its allele frequency (e.g. a methylation rate) is determined.
+For this purpose, you can split the range of possible allele frequencies into equally sized bins, define one event per bin in the scenario, and call with `--no-absent` (see [Calling variants](@/docs/calling.md)), e.g.
+
+```yaml
+samples:
+  sample:
+    universe: "[0.0,1.0]"
+events:
+  bin0: "sample:[0.0,0.1["
+  bin1: "sample:[0.1,0.2["
+  # ...
+  bin9: "sample:[0.9,1.0]"
+```
+
+Then, the option `--subsets adjacent-<k>` lets Varlociraptor sum up the posterior probabilities of every window of `k` adjacent events (in the order given via `--events`) and use the maximum of these window sums instead of the sum over all given events.
+
+```bash
+varlociraptor filter-calls control-fdr calls.bcf --mode local-strict --events BIN0 BIN1 BIN2 BIN3 BIN4 BIN5 BIN6 BIN7 BIN8 BIN9 --fdr 0.05 --subsets adjacent-3
+```
+
+keeps only calls whose allele frequency lies, with a probability of at least 95%, within three adjacent bins, i.e. within an interval of width at most 0.3.
+With global FDR control (`--mode global-strict`), the maximum window sums are used analogously, such that the expected fraction of reported calls whose allele frequency lies outside of their best window does not exceed the given FDR.
+
+Hence, `k` bounds the accepted posterior width: the smaller `k` and the more events, the more precise the allele frequency has to be.
+Since windows always start and end at bin borders, the effectively accepted width can vary, depending on where the posterior is located relative to the bins.
+Defining more, narrower bins (and increasing `k` accordingly) reduces this effect.

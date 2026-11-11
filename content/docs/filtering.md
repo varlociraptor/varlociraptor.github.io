@@ -26,12 +26,27 @@ Second, it keeps only those alterations that pass the FDR control and in additio
 The smart mode leads to more intuitive results, as it successfully captures borderline cases between different events, while effectively removing false positives.
 It is therefore recommended to use the smart mode (as we also do in all examples below).
 
-#### Retaining artifacts
+#### Handling artifacts
 
-Depending on the use case, it can be desired to consider alterations marked as potential artifacts as wanted or unwanted when performing FDR control. For this purpose, Varlociraptor offers the flag `--smart-retain-artifacts`.
+
+By default, the probability of the `artifact` event counts against the events of interest: in `smart` mode, it lowers the probability for presence, and in `strict` mode, it is not part of the summed probabilities of the given events (unless `ARTIFACT` is explicitly given via `--events`).
+Hence, records with a substantial artifact probability are filtered out.
+Depending on the use case, it can be desired to keep alterations marked as potential artifacts for downstream analysis.
+For this purpose, Varlociraptor offers two mutually exclusive options, which differ in how artifacts are interpreted.
+
+**Retaining artifacts as potentially real alterations** (`--smart-retain-artifacts`).
 The flag is only considered in `smart` mode.
 When the flag is activated, the `artifact` event is not considered when deciding about presence or absense of the alteration (i.e. the probability for presence becomes 1 - the probability of the absent event).
 Using the flag can be useful when maximum sensitivity is wanted and the user intends to carefully investigate artifact calls manually instead of filtering them out during FDR control.
+
+**Counting artifacts as the absence of the alteration** (`--artifact-as EVENT`).
+An artifact call means that the observed alternative reads are implausible, i.e. that the alteration is in fact not present.
+With this option, Varlociraptor adds the artifact probability to the probability of the given event before performing FDR control.
+The event has to be one of the events given via --events, and should be the one representing an allele frequency of zero, i.e. ABSENT, or, when calling with --no-absent, the lowest allele frequency bin.
+Records are thereby not filtered out because of their artifact probability.
+Note that the records themselves are not modified: PROB_ARTIFACT is still reported, and the reported allele frequency is the estimate of the strongest event, which might be the biased one. If needed, it has to be set to zero in downstream analyses.
+The option works in all modes.
+
 
 ### Control local FDR
 
@@ -92,3 +107,7 @@ In `smart` mode, the FDR would only be controlled over the artifact probability.
 
 Note that the events have to be given via `--events` in their natural order (e.g. ascending allele frequencies), as this order defines which events are adjacent.
 For the same reason, all given events have to be present in the BCF header.
+
+Records with a substantial artifact probability would be filtered out here, because the artifact probability is not part of any window.
+Adding `ARTIFACT` to `--events` is not suitable, since it would be part of the order of events without being adjacent to any other event.
+To instead interpret artifacts as an allele frequency of zero, add `--artifact-as BIN0`, which adds the artifact probability to every window containing `BIN0` (see [Handling artifacts](#handling-artifacts)).

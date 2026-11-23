@@ -33,6 +33,7 @@ By default, the probability of the `artifact` event counts against the events of
 Hence, records with a substantial artifact probability are filtered out.
 Depending on the use case, it can be desired to keep alterations marked as potential artifacts for downstream analysis.
 For this purpose, Varlociraptor offers two mutually exclusive options, which differ in how artifacts are interpreted.
+In addition, further events of the scenario can be declared to be artifacts.
 
 **Retaining artifacts as potentially real alterations** (`--smart-retain-artifacts`).
 The flag is only considered in `smart` mode.
@@ -42,11 +43,16 @@ Using the flag can be useful when maximum sensitivity is wanted and the user int
 **Counting artifacts as the absence of the alteration** (`--artifact-as EVENT`).
 An artifact call means that the observed alternative reads are implausible, i.e. that the alteration is in fact not present.
 With this option, Varlociraptor adds the artifact probability to the probability of the given event before performing FDR control.
-The event has to be one of the events given via --events, and should be the one representing an allele frequency of zero, i.e. ABSENT, or, when calling with --no-absent, the lowest allele frequency bin.
+The event has to be one of the events given via `--events`, and should be the one representing an allele frequency of zero, i.e. `ABSENT`, or, when calling with `--no-absent`, the lowest allele frequency bin.
 Records are thereby not filtered out because of their artifact probability.
-Note that the records themselves are not modified: PROB_ARTIFACT is still reported, and the reported allele frequency is the estimate of the strongest event, which might be the biased one. If needed, it has to be set to zero in downstream analyses.
+Note that the records themselves are not modified: `PROB_ARTIFACT` is still reported, and the reported allele frequency is the estimate of the strongest event, which might be the biased one. If needed, it has to be set to zero in downstream analyses.
 The option works in all modes.
 
+**Treating further events as artifacts** (`--as-artifact EVENTS`).
+Scenarios can define their own artifact-like events.
+With `--as-artifact`, the given events are treated like the `artifact` event in every respect:
+in `smart` mode, they count against presence, or are kept together with artifacts when using `--smart-retain-artifacts`. With `--artifact-as EVENT`, their probabilities are counted towards `EVENT` as well.
+In `strict` mode without `--artifact-as`, the option has no effect, since all events not given via `--events` count against the events of interest anyway.
 
 ### Control local FDR
 
